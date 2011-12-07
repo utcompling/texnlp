@@ -1,0 +1,8 @@
+BASESTRING=5
+SLASH=4
+LOWER=7
+UPPER=6
+'('=10
+'['=8
+')'=11
+']'=9

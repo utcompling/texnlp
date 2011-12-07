@@ -1,0 +1,55 @@
+v 0.2.0
+-------
+
+ - Reworked grammar informed initialization from Baldridge COLING 2008
+   paper that never made it in its final form into TexNLP. Results are
+   now very much like, though not exactly the same as, the 2008 paper
+   results.
+
+ - Added little utility to list all possible category combinations and
+   give them a value (possible/impossible, low/heigh weight, prior
+   prob values).
+
+ - Minor cleanup and documentation here and there.
+
+v 0.1.6
+-------
+ - Switched to TexNLP (texnlp) namespace
+
+ - Scripts now begin with 't' rather than 'a'
+
+ - Fixed various minor issues, underspecificed usage of generic classes, 
+   variables not read, unused imports
+
+v 0.1.3
+-------
+ - Computes transition probs given both the possible i and j
+   states. Helps both HMM and MEMM in different ways. For HMM, it
+   means only looking up the emmission prob once per j word. For MEMM,
+   it means we can compute the weights for all features except the
+   prev tag feature. This is now handled in TadmClassifier.
+
+ - Tagging of development data also prints out perplexity.
+
+ - Sped up forward-backward by swapping the state->possibleOutputs map
+   for an output->possibleStates map, so now values are only computed
+   for states that actually matter at each time step.
+
+
+v 0.1.2
+-------
+ - Added MEMM and extensive features based on the words for it to
+   exploit.
+
+ - Created a hierarchy for MarkovModels so that MEMMs and HMMs could
+   share code.
+
+ - Forward-backward now reads all data into memory rather than reading
+   from disk on each iteration.
+
+v 0.1.1
+-------
+ - Created AustinNLP packages and classes from a bunch of code I
+   developed for working with CCG grammars and training and using
+   HMMs. (Jason)
+

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# sets TEXNLP environment variables
+TEXNLP_LIB=$TEXNLP_DIR/lib
+DIRLIBS=$TEXNLP_LIB/trove.jar:$TEXNLP_LIB/cli.jar:$TEXNLP_LIB/antlr-runtime-3.0.1.jar
+CP=${TEXNLP_DIR}/output/classes:${DIRLIBS}
+JAVA=$JAVA_HOME/bin/java
+
+# Sets whether or not to use the JRAT profiler
+if [ "$USE_JRAT" = "true" ]
+then
+    JRAT_PROFILING="-javaagent:$TEXNLP_LIB/shiftone-jrat.jar"
+else
+    JRAT_PROFILING=""
+fi
+
+if [ -z $JAVA_MEM_FLAG ] 
+then
+    JAVA_MEM_FLAG=-Xmx2g
+fi
+
+# Now prepares the Java command with the right settings
+JAVA_CMD="$JAVA $JAVA_MEM_FLAG -classpath $CP -Dtexnlp.home=$TEXNLP_DIR -Dtadm.home=$TADM_DIR $JRAT_PROFILING"

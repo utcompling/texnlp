@@ -1,0 +1,42 @@
+
+BigramTagger.java,445
+public class BigramTagger BigramTagger7,74
+    public void tag BigramTagger.tag21,381
+    private double emForSequence BigramTagger.emForSequence92,2444
+    public void trainForwardBackward BigramTagger.trainForwardBackward304,10205
+    public void trainVisible BigramTagger.trainVisible419,13683
+    private void logNormalize(BigramTagger.logNormalize477,15003
+    private void scanAndPrepare BigramTagger.scanAndPrepare487,15257
+
+IntLogDistribution.java,785
+public class IntLogDistribution IntLogDistribution5,36
+    public IntLogDistribution IntLogDistribution.IntLogDistribution7,97
+    public IntLogDistribution IntLogDistribution.IntLogDistribution9,134
+    public double getLogProb IntLogDistribution.getLogProb13,208
+    public void observe IntLogDistribution.observe20,334
+    public void resetValue IntLogDistribution.resetValue24,411
+    public void resetAll IntLogDistribution.resetAll28,485
+    public void makeUniform IntLogDistribution.makeUniform33,598
+    public void doneObserving IntLogDistribution.doneObserving39,758
+    public void checkSum IntLogDistribution.checkSum47,963
+    public String toString IntLogDistribution.toString56,1175
+    public String toString IntLogDistribution.toString66,1443
+
+LogDistribution.java,617
+public class LogDistribution LogDistribution6,56
+    public LogDistribution LogDistribution.LogDistribution8,117
+    public LogDistribution LogDistribution.LogDistribution10,151
+    public double getLogProb LogDistribution.getLogProb14,225
+    public void observe LogDistribution.observe21,348
+    public void resetValue LogDistribution.resetValue25,424
+    public void makeUniform LogDistribution.makeUniform29,501
+    public void doneObserving LogDistribution.doneObserving35,665
+    public void checkSum LogDistribution.checkSum44,874
+    public String toString LogDistribution.toString53,1089
+
+OutputCounter.java,281
+public class OutputCounter OutputCounter6,56
+    public OutputCounter OutputCounter.OutputCounter8,115
+    public double getCount OutputCounter.getCount10,147
+    public void increment OutputCounter.increment17,268
+    public String toString OutputCounter.toString24,411
