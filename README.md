@@ -1,8 +1,8 @@
 [Jason Baldridge]: http://www.jasonbaldridge.com
-[Alexis Palmer]:
-[Taesun Moon]:
-[Katrin Erk]:
-[Elias Ponvert]:
+[Alexis Palmer]: http://www.coli.uni-saarland.de/~apalmer
+[Taesun Moon]: http://www.umiacs.umd.edu/~tsmoon
+[Katrin Erk]: http://www.katrinerk.com
+[Elias Ponvert]: http://elias.ponvert.net
 
 # TexNLP
 
