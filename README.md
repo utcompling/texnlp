@@ -26,5 +26,5 @@ License: [LGPL](http://www.gnu.org/licenses/lgpl.html)
 
 Contributors: [Jason Baldridge], [Taesun Moon], [Elias Ponvert]
 
-This development of the software and the research behind it was done as part of the EARL project, supported under NSF grant No. 06651988, "Reducing Annotation Effort in the Documentation of Languages using Machine Learning and Active Learning."
+This development of the software and the research behind it was done as part of the [EARL](http://comp.ling.utexas.edu/earl/) project, supported under NSF grant No. 06651988, "Reducing Annotation Effort in the Documentation of Languages using Machine Learning and Active Learning."
 
