@@ -19,11 +19,10 @@ package texnlp.util;
 
 import java.text.DecimalFormat;
 
-
 /**
  * Class for keeping constant values.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Constants {
@@ -41,8 +40,6 @@ public class Constants {
     public final static String CWD = System.getProperty("user.dir");
 
     // The format for printing precision, recall and f-scores.
-    public static final DecimalFormat PERCENT_FORMAT = 
-	new DecimalFormat("#,##0.00%");
-
+    public static final DecimalFormat PERCENT_FORMAT = new DecimalFormat("#,##0.00%");
 
 }

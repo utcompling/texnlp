@@ -17,12 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.*;
+import gnu.trove.THashSet;
 
 /**
  * A Hashset that keeps track of outputs, and handles unknowns.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class OutputSet extends THashSet<String> {
@@ -31,30 +31,32 @@ public class OutputSet extends THashSet<String> {
     protected static final String UNKNOWN_UC = "__UNKNOWN_UC__";
     protected static final String UNKNOWN_DIG = "__UNKNOWN_DIG__";
 
-    public OutputSet () {
-	add(UNKNOWN);
-	add(UNKNOWN_LC);
-	add(UNKNOWN_UC);
-	add(UNKNOWN_DIG);	
+    public OutputSet() {
+        add(UNKNOWN);
+        add(UNKNOWN_LC);
+        add(UNKNOWN_UC);
+        add(UNKNOWN_DIG);
     }
 
-    public String get (String s) {
-	if (contains(s)) {
-	    return s;
-	} 
+    public String get(String s) {
+        if (contains(s)) {
+            return s;
+        }
 
-	// do a *rough* characterization of what kind of unknown we have
-	char firstChar = s.charAt(0);
-	if (Character.isLowerCase(firstChar)) {
-	    return UNKNOWN_LC;
-	} else if (Character.isUpperCase(firstChar)) {
-	    return UNKNOWN_UC;	    
-	} else if (Character.isDigit(firstChar)) {
-	    return UNKNOWN_DIG;	    
-	} else {
-	    return UNKNOWN;
-	}
+        // do a *rough* characterization of what kind of unknown we have
+        char firstChar = s.charAt(0);
+        if (Character.isLowerCase(firstChar)) {
+            return UNKNOWN_LC;
+        }
+        else if (Character.isUpperCase(firstChar)) {
+            return UNKNOWN_UC;
+        }
+        else if (Character.isDigit(firstChar)) {
+            return UNKNOWN_DIG;
+        }
+        else {
+            return UNKNOWN;
+        }
     }
-
 
 }

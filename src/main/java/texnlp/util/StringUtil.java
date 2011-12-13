@@ -19,78 +19,73 @@ package texnlp.util;
 
 /**
  * Handy utilities for dealing with strings.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class StringUtil {
 
     public static String[] splitAtLast(char sep, String s) {
-	int lastIndex = s.lastIndexOf(sep);
-	String[] wordtag = { s.substring(0,lastIndex), 
-			     s.substring(lastIndex+1,s.length())};
-	return wordtag;
+        int lastIndex = s.lastIndexOf(sep);
+        String[] wordtag = { s.substring(0, lastIndex), s.substring(lastIndex + 1, s.length()) };
+        return wordtag;
     }
 
-    public static String join (Object[] array) {
-	return join(" ", array);
+    public static String join(Object[] array) {
+        return join(" ", array);
     }
 
-    public static String join (String sep, Object[] array) {
-	StringBuilder sb = new StringBuilder(array[0].toString());
-	for (int i=1; i<array.length; i++)
-	    sb.append(sep).append(array[i].toString());
-	return sb.toString();
+    public static String join(String sep, Object[] array) {
+        StringBuilder sb = new StringBuilder(array[0].toString());
+        for (int i = 1; i < array.length; i++)
+            sb.append(sep).append(array[i].toString());
+        return sb.toString();
     }
 
-    public static String join (String[] array) {
-	return join(" ", array);
+    public static String join(String[] array) {
+        return join(" ", array);
     }
 
-    public static String join (String sep, String[] array) {
-	StringBuilder sb = new StringBuilder(array[0]);
-	for (int i=1; i<array.length; i++)
-	    sb.append(sep).append(array[i]);
-	return sb.toString();
+    public static String join(String sep, String[] array) {
+        StringBuilder sb = new StringBuilder(array[0]);
+        for (int i = 1; i < array.length; i++)
+            sb.append(sep).append(array[i]);
+        return sb.toString();
     }
 
-
-    public static String join (int[] array) {
-	return join(" ", array);
+    public static String join(int[] array) {
+        return join(" ", array);
     }
 
-    public static String join (String sep, int[] array) {
+    public static String join(String sep, int[] array) {
         StringBuilder sb = new StringBuilder(Integer.toString(array[0]));
-        for (int i=1; i<array.length; i++)
+        for (int i = 1; i < array.length; i++)
             sb.append(sep).append(array[i]);
         return sb.toString();
     }
 
-    public static String join (double[] array) {
-	return join(" ", array);
+    public static String join(double[] array) {
+        return join(" ", array);
     }
 
-    public static String join (String sep, double[] array) {
+    public static String join(String sep, double[] array) {
         StringBuilder sb = new StringBuilder(Double.toString(array[0]));
-        for (int i=1; i<array.length; i++)
+        for (int i = 1; i < array.length; i++)
             sb.append(sep).append(array[i]);
         return sb.toString();
     }
 
+    public static String mergeJoin(String sep, String[] a1, String[] a2) {
+        if (a1.length != a2.length) {
+            System.out.println("Unable to merge String arrays of different length!");
+            return join(a1);
+        }
 
-
-    public static String mergeJoin (String sep, String[] a1, String[] a2) {
-	if (a1.length != a2.length) {
-	    System.out.println("Unable to merge String arrays of different length!");
-	    return join(a1);
-	}
-
-	StringBuilder sb = new StringBuilder(a1[0]);
-	sb.append(sep).append(a2[0]);
-	for (int i=1; i<a1.length; i++)
-	    sb.append(" ").append(a1[i]).append(sep).append(a2[i]);
-	return sb.toString();
+        StringBuilder sb = new StringBuilder(a1[0]);
+        sb.append(sep).append(a2[0]);
+        for (int i = 1; i < a1.length; i++)
+            sb.append(" ").append(a1[i]).append(sep).append(a2[i]);
+        return sb.toString();
     }
-
 
 }

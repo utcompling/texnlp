@@ -17,12 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
+import java.util.Set;
 
 /**
  * A complex category, like (s\np)/np.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class ComplexCat extends Cat {
@@ -31,70 +31,68 @@ public class ComplexCat extends Cat {
     public Slash sl;
     public Cat arg;
 
-    public ComplexCat (Cat res, Slash sl, Cat arg) {
-	this.res = res;
-	this.sl = sl;
-	this.arg = arg;
-	arity = res.arity+1;
+    public ComplexCat(Cat res, Slash sl, Cat arg) {
+        this.res = res;
+        this.sl = sl;
+        this.arg = arg;
+        arity = res.arity + 1;
     }
 
     public int collectCats(Set<AtomCat> atomcats, Set<Cat> allcats) {
-	allcats.add(this);
+        allcats.add(this);
 
-	int resSubcats = res.collectCats(atomcats, allcats);
-	int argSubcats = arg.collectCats(atomcats, allcats);
-	return 1 + resSubcats + argSubcats;
+        int resSubcats = res.collectCats(atomcats, allcats);
+        int argSubcats = arg.collectCats(atomcats, allcats);
+        return 1 + resSubcats + argSubcats;
     }
 
     public AtomCat getRootCat() {
-	if (res instanceof AtomCat)
-	    return (AtomCat)res;
-	else 
-	    return ((ComplexCat)res).getRootCat();
+        if (res instanceof AtomCat)
+            return (AtomCat) res;
+        else
+            return ((ComplexCat) res).getRootCat();
     }
-
 
     public boolean notSeekingDir(boolean dir) {
-	if (sl.hasDir(dir)) {
-	    return false;
-	} else {
-	    return res.notSeekingDir(dir);
-	}
+        if (sl.hasDir(dir)) {
+            return false;
+        }
+        else {
+            return res.notSeekingDir(dir);
+        }
     }
 
-    public boolean equals (Object c) {
-	if (c instanceof ComplexCat)
-	    return (sl.equals(((ComplexCat)c).sl)
-		    && arg.equals(((ComplexCat)c).arg)
-		    && res.equals(((ComplexCat)c).res));
-	else
-	    return false;
+    public boolean equals(Object c) {
+        if (c instanceof ComplexCat)
+            return (sl.equals(((ComplexCat) c).sl) && arg.equals(((ComplexCat) c).arg) && res
+                    .equals(((ComplexCat) c).res));
+        else
+            return false;
     }
 
-    public boolean unifies (Object c) {
-	if (c instanceof ComplexCat)
-	    return (sl.equals(((ComplexCat)c).sl)
-		    && arg.unifies(((ComplexCat)c).arg)
-		    && res.unifies(((ComplexCat)c).res));
-	else
-	    return false;
+    public boolean unifies(Object c) {
+        if (c instanceof ComplexCat)
+            return (sl.equals(((ComplexCat) c).sl) && arg.unifies(((ComplexCat) c).arg) && res
+                    .unifies(((ComplexCat) c).res));
+        else
+            return false;
     }
 
-    public String toString () {
-	StringBuilder sb = new StringBuilder();
-	if (res instanceof ComplexCat)
-	    sb.append("("+res.toString()+")");
-	else
-	    sb.append(res.toString());
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (res instanceof ComplexCat)
+            sb.append("(" + res.toString() + ")");
+        else
+            sb.append(res.toString());
 
-	sb.append(sl.toString());
+        sb.append(sl.toString());
 
-	if (arg instanceof ComplexCat)
-	    sb.append("("+arg.toString()+")");
-	else
-	    sb.append(arg.toString());
+        if (arg instanceof ComplexCat)
+            sb.append("(" + arg.toString() + ")");
+        else
+            sb.append(arg.toString());
 
-	return sb.toString();
+        return sb.toString();
     }
 
 }

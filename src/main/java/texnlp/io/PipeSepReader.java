@@ -37,58 +37,58 @@ public class PipeSepReader extends DataReader {
     private String[][] currentSequence = null;
     private int currentIndex = 0;
 
-    public PipeSepReader (File f) throws IOException {
-	super(f);
+    public PipeSepReader(File f) throws IOException {
+        super(f);
     }
 
     public String[] nextToken() throws IOException, EOFException {
-	if (currentSequence == null || currentIndex == currentSequence.length) {
-	    currentSequence = nextSequence();
-	    currentIndex = 0;
-	}
-	 
-	return currentSequence[currentIndex++];
+        if (currentSequence == null || currentIndex == currentSequence.length) {
+            currentSequence = nextSequence();
+            currentIndex = 0;
+        }
+
+        return currentSequence[currentIndex++];
     }
-    
+
     public String[][] nextSequence() throws IOException, EOFException {
-	
-	String[][] sequence;
 
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
-	
-	if (line.length() == 0)
-	    return nextSequence();
+        String[][] sequence;
 
-	String[] items = line.split(" ");
-	sequence = new String[items.length][];
-	for (int i=0; i<items.length; i++)
-	    sequence[i] = items[i].split("\\|");
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	return sequence;
+        if (line.length() == 0)
+            return nextSequence();
+
+        String[] items = line.split(" ");
+        sequence = new String[items.length][];
+        for (int i = 0; i < items.length; i++)
+            sequence[i] = items[i].split("\\|");
+
+        return sequence;
     }
 
     public String[] nextOutputSequence() throws IOException, EOFException {
 
-	String[] sequence;
+        String[] sequence;
 
-	String line = inputReader.readLine();
-	
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
+        String line = inputReader.readLine();
 
-	if (line.length() == 0)
-	    return nextOutputSequence();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	String[] items = line.split(" ");
-	sequence = new String[items.length];
-	for (int i=0; i<items.length; i++)
-	    sequence[i] = items[i].split("\\|")[0];
-	
-	return sequence;
+        if (line.length() == 0)
+            return nextOutputSequence();
+
+        String[] items = line.split(" ");
+        sequence = new String[items.length];
+        for (int i = 0; i < items.length; i++)
+            sequence[i] = items[i].split("\\|")[0];
+
+        return sequence;
 
     }
 

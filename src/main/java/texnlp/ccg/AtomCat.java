@@ -17,12 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
+import java.util.Set;
 
 /**
  * An atomic category, like S or NP.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class AtomCat extends Cat {
@@ -30,60 +30,57 @@ public class AtomCat extends Cat {
     public String val;
     public String feature = "";
 
-    public AtomCat (String val) {
-	this.val = val;
+    public AtomCat(String val) {
+        this.val = val;
     }
 
-    public AtomCat (String val, String feature) {
-	this.val = val;
-	this.feature = feature;
+    public AtomCat(String val, String feature) {
+        this.val = val;
+        this.feature = feature;
     }
 
-    public AtomCat (char val) {
-	this.val = Character.toString(val);
+    public AtomCat(char val) {
+        this.val = Character.toString(val);
     }
 
     public AtomCat getRootCat() {
-	return this;
+        return this;
     }
 
     public int collectCats(Set<AtomCat> atomcats, Set<Cat> allcats) {
-	atomcats.add(this);
-	allcats.add(this);
-	return 1;
+        atomcats.add(this);
+        allcats.add(this);
+        return 1;
     }
 
-    public boolean equals (Object c) {
-	if (c instanceof AtomCat)
-	    return (val.equals(((AtomCat)c).val)
-		    && feature.equals(((AtomCat)c).feature));
-	return false;
+    public boolean equals(Object c) {
+        if (c instanceof AtomCat)
+            return (val.equals(((AtomCat) c).val) && feature.equals(((AtomCat) c).feature));
+        return false;
     }
 
-    public boolean unifies (Object c) {
-	if (c instanceof AtomCat) {
-	    if (matches(val, ((AtomCat)c).val)) {
-		if (feature.isEmpty() || ((AtomCat)c).feature.isEmpty())
-		    return true;
-		else
-		    return feature.equals(((AtomCat)c).feature);
-	    }
-	}
-	return false;
+    public boolean unifies(Object c) {
+        if (c instanceof AtomCat) {
+            if (matches(val, ((AtomCat) c).val)) {
+                if (feature.isEmpty() || ((AtomCat) c).feature.isEmpty())
+                    return true;
+                else
+                    return feature.equals(((AtomCat) c).feature);
+            }
+        }
+        return false;
     }
-
 
     private static boolean matches(String s1, String s2) {
-	return (s1.equals(s2)
-		|| (s1.equals("NP") && s2.equals("N")));
-		//|| (s1.equals("N") && s2.equals("NP")));
+        return (s1.equals(s2) || (s1.equals("NP") && s2.equals("N")));
+        // || (s1.equals("N") && s2.equals("NP")));
     }
 
-    public String toString () {
-	if (feature.isEmpty())
-	    return val;
-	else
-	    return val + "[" + feature + "]";
+    public String toString() {
+        if (feature.isEmpty())
+            return val;
+        else
+            return val + "[" + feature + "]";
     }
 
 }

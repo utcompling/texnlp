@@ -17,13 +17,13 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
+import java.util.Set;
 
 /**
- * Abstract category class to group properties shared by subtypes of
- * categories, like atomic and complex categories.
- *
- * @author  Jason Baldridge
+ * Abstract category class to group properties shared by subtypes of categories,
+ * like atomic and complex categories.
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public abstract class Cat {
@@ -31,37 +31,38 @@ public abstract class Cat {
     public static char S = 's';
     public static char N = 'n';
 
-    public int arity=0;
+    public int arity = 0;
 
     public abstract boolean equals(Object c);
+
     public abstract boolean unifies(Object c);
+
     public abstract int collectCats(Set<AtomCat> atomcats, Set<Cat> allcats);
+
     public abstract String toString();
+
     public abstract AtomCat getRootCat();
 
     public boolean notSeekingDir(boolean dir) {
-	return true;
+        return true;
     }
 
-
-    public int hashCode () {
-	return toString().hashCode();
+    public int hashCode() {
+        return toString().hashCode();
     }
-
 
     public static String changeNonCats(String c) {
-	if (c.equals(","))
-	    return "NP[comma]\\NP";
-	if (c.equals("."))
-	    return "S[punc]\\S";
-	if (c.equals(";"))
-	    return "(S[punc]\\S)/S";
-	//if (c.equals("LRB"))
-	//    return "S[punc]/S";
-	//if (c.equals("RRB"))
-	//    return "S[RRB]\\S";
-	return c;
+        if (c.equals(","))
+            return "NP[comma]\\NP";
+        if (c.equals("."))
+            return "S[punc]\\S";
+        if (c.equals(";"))
+            return "(S[punc]\\S)/S";
+        // if (c.equals("LRB"))
+        // return "S[punc]/S";
+        // if (c.equals("RRB"))
+        // return "S[RRB]\\S";
+        return c;
     }
-
 
 }

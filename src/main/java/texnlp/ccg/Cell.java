@@ -17,13 +17,14 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
-import gnu.trove.*;
+import gnu.trove.THashSet;
+
+import java.util.Set;
 
 /**
  * A cell in a CKY chart, containing a set of Signs.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Cell {
@@ -31,29 +32,29 @@ public class Cell {
     Set<Sign> items;
 
     public Cell() {
-	items = new THashSet<Sign>();
+        items = new THashSet<Sign>();
     }
 
     public Cell(Sign o) {
-	this();
-	addItem(o);
+        this();
+        addItem(o);
     }
 
     public Cell(Set<Sign> o) {
-	items = o;
+        items = o;
     }
 
-    public void addItem (Sign o) {
-	items.add(o);
+    public void addItem(Sign o) {
+        items.add(o);
     }
-    
+
     public String toString() {
-	StringBuilder sb = new StringBuilder("{");
-	for (Sign c: items) {
-	    sb.append(" ").append(c.toString());
-	}
-	sb.append(" }");
-	return sb.toString();
+        StringBuilder sb = new StringBuilder("{");
+        for (Sign c : items) {
+            sb.append(" ").append(c.toString());
+        }
+        sb.append(" }");
+        return sb.toString();
     }
 
 }

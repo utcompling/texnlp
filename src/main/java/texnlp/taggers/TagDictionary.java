@@ -17,22 +17,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import java.io.*;
-import java.util.*;
-import gnu.trove.*;
-import texnlp.io.*;
-import texnlp.ccg.*;
-import texnlp.ccg.parse.*;
+import gnu.trove.THashMap;
+import gnu.trove.TIntDoubleHashMap;
+import gnu.trove.TIntDoubleIterator;
+import gnu.trove.TIntIntHashMap;
+import gnu.trove.TObjectIntHashMap;
+import gnu.trove.TObjectObjectProcedure;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
+
+import texnlp.io.DataReader;
 
 /**
  * A tag dictionary.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
-//public class TagDictionary extends THashMap<String, TIntDoubleHashMap> {
+// public class TagDictionary extends THashMap<String, TIntDoubleHashMap> {
 public class TagDictionary {
-    //private double threshold = 0.1;
+    // private double threshold = 0.1;
     private double threshold = 0.0;
 
     THashMap<String, TIntDoubleHashMap> collectDict = new THashMap<String, TIntDoubleHashMap>();
@@ -40,149 +48,148 @@ public class TagDictionary {
     int[] defaults;
     THashMap<String, int[]> dict;
 
-    public TagDictionary () {}
-
-    public TagDictionary (DataReader inputReader, TObjectIntHashMap<String> states) 
-	throws IOException {
-
-	  String[] token = inputReader.nextToken();
-	  try {
-	      while (true) {
-		  String tag = token[1];
-		  if (!tag.equals(Tagger.UNLABELED_TAG))
-		      addTagForWord(token[0], states.get(tag));
-		  token = inputReader.nextToken();
-	      }
-	  } catch (EOFException e) {
-	      inputReader.close();
-	  }
-
-	finalize(states.size());
+    public TagDictionary() {
     }
 
-    public void finalize (int numTags) {
-	// Don't do anything if we already finalized it (not clean,
-	// but no time to make it pretty for all tagging models now.
-	if (defaults != null)
-	    return;
+    public TagDictionary(DataReader inputReader, TObjectIntHashMap<String> states) throws IOException {
 
-	//applyThreshold();
+        String[] token = inputReader.nextToken();
+        try {
+            while (true) {
+                String tag = token[1];
+                if (!tag.equals(Tagger.UNLABELED_TAG))
+                    addTagForWord(token[0], states.get(tag));
+                token = inputReader.nextToken();
+            }
+        }
+        catch (EOFException e) {
+            inputReader.close();
+        }
 
-	defaults = new int[numTags];
-	for (int i=0; i<numTags; i++)
-	    defaults[i] = i;
-
-	int numTypes = collectDict.size();
-	dict = new THashMap<String, int[]>(numTypes);
-	collectDict.forEachEntry(new TObjectObjectProcedure<String,TIntDoubleHashMap> () {
-	    public boolean execute (String s, TIntDoubleHashMap m) {
-		Arrays.sort(m.keys());
-		dict.put(s, m.keys());
-		return true;
-	    }
-	});
-	collectDict = null;
-	dict.trimToSize();
+        finalize(states.size());
     }
 
-    public void addTagForWord (String word, int tag) {
-	if (!collectDict.containsKey(word))
-	    collectDict.put(word, new TIntDoubleHashMap());
-	collectDict.get(word).adjustOrPutValue(tag, 1.0, 1.0);
+    public void finalize(int numTags) {
+        // Don't do anything if we already finalized it (not clean,
+        // but no time to make it pretty for all tagging models now.
+        if (defaults != null)
+            return;
+
+        // applyThreshold();
+
+        defaults = new int[numTags];
+        for (int i = 0; i < numTags; i++)
+            defaults[i] = i;
+
+        int numTypes = collectDict.size();
+        dict = new THashMap<String, int[]>(numTypes);
+        collectDict.forEachEntry(new TObjectObjectProcedure<String, TIntDoubleHashMap>() {
+            public boolean execute(String s, TIntDoubleHashMap m) {
+                Arrays.sort(m.keys());
+                dict.put(s, m.keys());
+                return true;
+            }
+        });
+        collectDict = null;
+        dict.trimToSize();
     }
 
-    public void addTagForWord (String word, int tag, double amount) {
-	if (!collectDict.containsKey(word))
-	    collectDict.put(word, new TIntDoubleHashMap());
-	collectDict.get(word).adjustOrPutValue(tag, amount, amount);
+    public void addTagForWord(String word, int tag) {
+        if (!collectDict.containsKey(word))
+            collectDict.put(word, new TIntDoubleHashMap());
+        collectDict.get(word).adjustOrPutValue(tag, 1.0, 1.0);
     }
 
-    public boolean containsWord (String word) {
-	return dict.containsKey(word);
+    public void addTagForWord(String word, int tag, double amount) {
+        if (!collectDict.containsKey(word))
+            collectDict.put(word, new TIntDoubleHashMap());
+        collectDict.get(word).adjustOrPutValue(tag, amount, amount);
     }
 
-    public int[] getTags (String word) {
-	int[] tags = dict.get(word);
-	if (null == tags)
-	    return defaults;
-	return tags;
+    public boolean containsWord(String word) {
+        return dict.containsKey(word);
     }
 
-    public Set<String> getWords () {
-	return dict.keySet();
+    public int[] getTags(String word) {
+        int[] tags = dict.get(word);
+        if (null == tags)
+            return defaults;
+        return tags;
     }
 
-    public void setThreshold (double cutoff) {
-	threshold = cutoff;
+    public Set<String> getWords() {
+        return dict.keySet();
     }
 
-    public int[] getNumWordsForTags (int numStates) {
-	int[] numWordsForTag =  new int[numStates];
-    
-	for (Iterator<String> it=collectDict.keySet().iterator(); it.hasNext();) {
-	    String word = it.next();		
-	    for (TIntDoubleIterator tagit=collectDict.get(word).iterator(); 
-		 tagit.hasNext();) {
-		tagit.advance();
-		numWordsForTag[tagit.key()]++;
-	    }
-	}
-	return numWordsForTag;
+    public void setThreshold(double cutoff) {
+        threshold = cutoff;
     }
 
-    public THashMap<String, TIntDoubleHashMap> getCollectionDictionary () {
-	return collectDict;
+    public int[] getNumWordsForTags(int numStates) {
+        int[] numWordsForTag = new int[numStates];
+
+        for (Iterator<String> it = collectDict.keySet().iterator(); it.hasNext();) {
+            String word = it.next();
+            for (TIntDoubleIterator tagit = collectDict.get(word).iterator(); tagit.hasNext();) {
+                tagit.advance();
+                numWordsForTag[tagit.key()]++;
+            }
+        }
+        return numWordsForTag;
     }
 
-    public void applyThreshold () {
-	if (threshold == 0.0)
-	    return;
-
-	for (Iterator<String> it=collectDict.keySet().iterator(); it.hasNext();) {
-	    final String word = it.next();
-	    
-	    double total = 0.0;
-	    for (TIntDoubleIterator tagit=collectDict.get(word).iterator(); tagit.hasNext();) {
-		tagit.advance();
-		total += tagit.value();
-	    }
-
-	    for (TIntDoubleIterator tagit=collectDict.get(word).iterator(); tagit.hasNext();) {
-		tagit.advance();
-		if (tagit.value()/total < threshold) {
-		    tagit.remove();
-		}
-	    }
-	}
+    public THashMap<String, TIntDoubleHashMap> getCollectionDictionary() {
+        return collectDict;
     }
 
-    public void applyThresholdFair () {
-	if (threshold == 0.0)
-	    return;
+    public void applyThreshold() {
+        if (threshold == 0.0)
+            return;
 
-	TIntIntHashMap numWordsOccurredWith = new TIntIntHashMap();
-	for (Iterator<String> it=collectDict.keySet().iterator(); it.hasNext();) {
-	    final String word = it.next();
-	    for (TIntDoubleIterator tagit=collectDict.get(word).iterator(); tagit.hasNext();) {
-		tagit.advance();
-		numWordsOccurredWith.adjustOrPutValue(tagit.key(), 1, 1);
-	    }
-	}
+        for (Iterator<String> it = collectDict.keySet().iterator(); it.hasNext();) {
+            final String word = it.next();
 
-	int numRemoved = 0;
-	for (Iterator<String> it=collectDict.keySet().iterator(); it.hasNext();) {
-	    final String word = it.next();
-	    
-	    for (TIntDoubleIterator tagit=collectDict.get(word).iterator(); tagit.hasNext();) {
-		tagit.advance();
-		if (numWordsOccurredWith.get(tagit.key()) < threshold
-		    && collectDict.get(word).size() > 1) {
-		    tagit.remove();
-		    numRemoved++;
-		}
-	    }
-	}
-	System.out.println("** " + numRemoved);
+            double total = 0.0;
+            for (TIntDoubleIterator tagit = collectDict.get(word).iterator(); tagit.hasNext();) {
+                tagit.advance();
+                total += tagit.value();
+            }
+
+            for (TIntDoubleIterator tagit = collectDict.get(word).iterator(); tagit.hasNext();) {
+                tagit.advance();
+                if (tagit.value() / total < threshold) {
+                    tagit.remove();
+                }
+            }
+        }
+    }
+
+    public void applyThresholdFair() {
+        if (threshold == 0.0)
+            return;
+
+        TIntIntHashMap numWordsOccurredWith = new TIntIntHashMap();
+        for (Iterator<String> it = collectDict.keySet().iterator(); it.hasNext();) {
+            final String word = it.next();
+            for (TIntDoubleIterator tagit = collectDict.get(word).iterator(); tagit.hasNext();) {
+                tagit.advance();
+                numWordsOccurredWith.adjustOrPutValue(tagit.key(), 1, 1);
+            }
+        }
+
+        int numRemoved = 0;
+        for (Iterator<String> it = collectDict.keySet().iterator(); it.hasNext();) {
+            final String word = it.next();
+
+            for (TIntDoubleIterator tagit = collectDict.get(word).iterator(); tagit.hasNext();) {
+                tagit.advance();
+                if (numWordsOccurredWith.get(tagit.key()) < threshold && collectDict.get(word).size() > 1) {
+                    tagit.remove();
+                    numRemoved++;
+                }
+            }
+        }
+        System.out.println("** " + numRemoved);
 
     }
 

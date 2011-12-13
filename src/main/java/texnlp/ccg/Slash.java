@@ -18,9 +18,9 @@
 package texnlp.ccg;
 
 /**
- * A slash, "\" or "/". 
- *
- * @author  Jason Baldridge
+ * A slash, "\" or "/".
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Slash {
@@ -30,30 +30,30 @@ public class Slash {
 
     public boolean dir;
 
-    public Slash (boolean dir) {
-	this.dir = dir;
+    public Slash(boolean dir) {
+        this.dir = dir;
     }
 
-    public Slash (String slash) {
-	if (slash.equals("\\"))
-	    dir = L;
-	else
-	    dir = R;
+    public Slash(String slash) {
+        if (slash.equals("\\"))
+            dir = L;
+        else
+            dir = R;
     }
 
-    public boolean equals (Slash sl) {
-	return dir == sl.dir;
+    public boolean equals(Slash sl) {
+        return dir == sl.dir;
     }
 
-    public boolean hasDir (boolean dir) {
-	return this.dir == dir;
+    public boolean hasDir(boolean dir) {
+        return this.dir == dir;
     }
 
     public String toString() {
-	if (dir == L)
-	    return "\\";
-	else
-	    return "/";
+        if (dir == L)
+            return "\\";
+        else
+            return "/";
     }
 
 }

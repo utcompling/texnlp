@@ -17,41 +17,43 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.*;
-import texnlp.util.*;
+import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleIterator;
+import texnlp.util.MathUtil;
 
 /**
- * A simple log-space counter for counting emission probabilities
- * during the maximization step of the forward-backward algorithm.
- *
- * @author  Jason Baldridge
+ * A simple log-space counter for counting emission probabilities during the
+ * maximization step of the forward-backward algorithm.
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class OutputCounter extends TObjectDoubleHashMap<String> {
 
-    public OutputCounter () {}
-
-    public double getCount (String s) {
-	if (containsKey(s))
-	    return get(s);
-	else
-	    return MathUtil.LOG_ZERO;
+    public OutputCounter() {
     }
 
-    public void increment (String s, double val) {
-	if (containsKey(s))
-	    put(s, MathUtil.elogSum(get(s), val));
-	else
-	    put(s, val);
+    public double getCount(String s) {
+        if (containsKey(s))
+            return get(s);
+        else
+            return MathUtil.LOG_ZERO;
     }
 
-    public String toString () {
-	StringBuffer sb = new StringBuffer();
-	for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
-	    it.advance();
-	    sb.append("\t" + it.key() + " -> " + MathUtil.eexp(it.value()) + "\n");
-	}
-	return sb.toString();
+    public void increment(String s, double val) {
+        if (containsKey(s))
+            put(s, MathUtil.elogSum(get(s), val));
+        else
+            put(s, val);
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
+            it.advance();
+            sb.append("\t" + it.key() + " -> " + MathUtil.eexp(it.value()) + "\n");
+        }
+        return sb.toString();
     }
 
 }

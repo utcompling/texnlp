@@ -27,11 +27,11 @@ import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
 /**
- * Wrapper for reading in information from a file which has one word
- * per line with associated tags. Subclasses for this abstract class
- * handle specific formats for data stored in this manner.
- *
- * @author  Jason Baldridge
+ * Wrapper for reading in information from a file which has one word per line
+ * with associated tags. Subclasses for this abstract class handle specific
+ * formats for data stored in this manner.
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public abstract class DataReader {
@@ -39,36 +39,37 @@ public abstract class DataReader {
     BufferedReader inputReader;
     File inputFile;
 
-    protected DataReader (File f) throws IOException {
-	inputFile = f;
-	restart();
+    protected DataReader(File f) throws IOException {
+        inputFile = f;
+        restart();
     }
 
     public abstract String[] nextToken() throws IOException, EOFException;
+
     public abstract String[][] nextSequence() throws IOException, EOFException;
+
     public abstract String[] nextOutputSequence() throws IOException, EOFException;
 
     // Override this in case a format needs to be set to a particular
     // spot for the first read (see HashSlashReader).x
-    protected void prepare () throws IOException {}
+    protected void prepare() throws IOException {
+    }
 
     public void restart() throws IOException {
-	if (inputFile.getName().endsWith(".gz"))
-	    inputReader = new BufferedReader(new InputStreamReader(
-  	                    new GZIPInputStream(new FileInputStream(inputFile))));
-	else
-	    inputReader = new BufferedReader(new FileReader(inputFile));
+        if (inputFile.getName().endsWith(".gz"))
+            inputReader = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(inputFile))));
+        else
+            inputReader = new BufferedReader(new FileReader(inputFile));
 
-	prepare();
+        prepare();
     }
 
     public void close() throws IOException {
-	inputReader.close();
+        inputReader.close();
     }
 
-    public String getFilename () {
-	return inputFile.toString();
+    public String getFilename() {
+        return inputFile.toString();
     }
-
 
 }

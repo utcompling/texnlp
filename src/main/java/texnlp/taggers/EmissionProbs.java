@@ -17,43 +17,43 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.*;
-import texnlp.util.*;
+import gnu.trove.THashMap;
+import gnu.trove.TLinkedList;
+import texnlp.util.IntDoublePair;
 
 /**
  * HMM emission probabilities. Also doubles as a tag dictionary.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class EmissionProbs {
     protected THashMap<String, TLinkedList<IntDoublePair>> pEmission;
     protected TLinkedList<IntDoublePair> unknownEmission;
 
-    public EmissionProbs (THashMap<String, TLinkedList<IntDoublePair>> _pEmission,
-			  TLinkedList<IntDoublePair> _unknownEmission) {
+    public EmissionProbs(THashMap<String, TLinkedList<IntDoublePair>> _pEmission,
+            TLinkedList<IntDoublePair> _unknownEmission) {
 
-	pEmission = _pEmission;
-	unknownEmission = _unknownEmission;
+        pEmission = _pEmission;
+        unknownEmission = _unknownEmission;
     }
 
-    public TLinkedList<IntDoublePair> get (String word) {
-	if (pEmission.containsKey(word))
-	    return pEmission.get(word);
-	else
-	    return unknownEmission;
+    public TLinkedList<IntDoublePair> get(String word) {
+        if (pEmission.containsKey(word))
+            return pEmission.get(word);
+        else
+            return unknownEmission;
     }
 
-    public TLinkedList<IntDoublePair> getStrict (String word) {
-	if (pEmission.containsKey(word))
-	    return pEmission.get(word);
-	else
-	    return null;
+    public TLinkedList<IntDoublePair> getStrict(String word) {
+        if (pEmission.containsKey(word))
+            return pEmission.get(word);
+        else
+            return null;
     }
 
-    public TLinkedList<IntDoublePair> getUnknown () {
-	return unknownEmission;
+    public TLinkedList<IntDoublePair> getUnknown() {
+        return unknownEmission;
     }
-
 
 }

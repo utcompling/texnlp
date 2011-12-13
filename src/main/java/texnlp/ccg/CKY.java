@@ -19,73 +19,72 @@ package texnlp.ccg;
 
 /**
  * A parser that uses the CKY algorithm.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class CKY {
 
     Lexicon lexicon;
-    
+
     public Cell[][] chart;
 
-    public CKY (Lexicon lexicon) {
-	this.lexicon = lexicon;
+    public CKY(Lexicon lexicon) {
+        this.lexicon = lexicon;
     }
 
-    public Cell parse (String sentence) {
-	return parse(sentence.split(" "));
+    public Cell parse(String sentence) {
+        return parse(sentence.split(" "));
     }
 
-    public Cell parse (String[] words) {
-	final int numItems = words.length;
+    public Cell parse(String[] words) {
+        final int numItems = words.length;
 
-	chart = new Cell[numItems][numItems];
+        chart = new Cell[numItems][numItems];
 
-	for (int j=0; j<numItems; j++) {
-	    chart[j][j] = new Cell(lexicon.getEntries(words[j]));
+        for (int j = 0; j < numItems; j++) {
+            chart[j][j] = new Cell(lexicon.getEntries(words[j]));
 
-	    for (int i=j-1; i >= 0; i--) {
-		Cell fill = new Cell();
+            for (int i = j - 1; i >= 0; i--) {
+                Cell fill = new Cell();
 
-		for (int k=i; k<=j-1; k++) {
+                for (int k = i; k <= j - 1; k++) {
 
-		    for (Sign left: chart[i][k].items) {
+                    for (Sign left : chart[i][k].items) {
 
-			for (Sign right: chart[k+1][j].items) {
+                        for (Sign right : chart[k + 1][j].items) {
 
-			    // Forward application
-			    combine(left, right, Slash.R, fill);
+                            // Forward application
+                            combine(left, right, Slash.R, fill);
 
-			    // Backward application
-			    combine(right, left, Slash.L, fill);
+                            // Backward application
+                            combine(right, left, Slash.L, fill);
 
-			}
-		    }
-		}
-		chart[i][j] = fill;
-	    }
-	}
+                        }
+                    }
+                }
+                chart[i][j] = fill;
+            }
+        }
 
-	return chart[0][numItems-1];
+        return chart[0][numItems - 1];
     }
 
     public void combine(Sign functor, Sign arg, boolean dir, Cell items) {
-	//System.out.println("!!! " + functor + " -> " + arg);
+        // System.out.println("!!! " + functor + " -> " + arg);
 
-	if (functor.cat instanceof ComplexCat
-	    && ((ComplexCat)functor.cat).arg.equals(arg.cat)
-	    && ((ComplexCat)functor.cat).sl.hasDir(dir)) {
-	    
-	    String words = "";
-	    if (dir == Slash.R)
-		words = functor.lex + " " + arg.lex;
-	    else
-		words = arg.lex + " " + functor.lex;
+        if (functor.cat instanceof ComplexCat && ((ComplexCat) functor.cat).arg.equals(arg.cat)
+                && ((ComplexCat) functor.cat).sl.hasDir(dir)) {
 
-	    items.addItem(new Sign(words, ((ComplexCat)functor.cat).res));
-	    //System.out.println("::: " + items);
-	}
+            String words = "";
+            if (dir == Slash.R)
+                words = functor.lex + " " + arg.lex;
+            else
+                words = arg.lex + " " + functor.lex;
+
+            items.addItem(new Sign(words, ((ComplexCat) functor.cat).res));
+            // System.out.println("::: " + items);
+        }
     }
-    
+
 }

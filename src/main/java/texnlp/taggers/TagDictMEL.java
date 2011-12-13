@@ -17,18 +17,21 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import java.io.*;
-import texnlp.estimate.*;
-import texnlp.io.*;
-import texnlp.util.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
 
+import texnlp.estimate.Context;
+import texnlp.estimate.TadmClassifier;
+import texnlp.io.DataReader;
+import texnlp.util.MathUtil;
+import texnlp.util.TaggerOptions;
 
 /**
- * A Maximum Entropy Labeler (no sequence info) that models the
- * probability of a tag given only the word (and no surrounding
- * context, either pos or words).
- *
- * @author  Jason Baldridge
+ * A Maximum Entropy Labeler (no sequence info) that models the probability of a
+ * tag given only the word (and no surrounding context, either pos or words).
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class TagDictMEL extends MaxentTagger {
@@ -39,188 +42,194 @@ public class TagDictMEL extends MaxentTagger {
 
     private TadmClassifier mTagGivenContext;
 
-    //private WordContextGenerator wcgen = new CCWordContextGenerator();
-    //private WordContextGenerator wcgen = new AggressiveWordContextGenerator();
-    
+    // private WordContextGenerator wcgen = new CCWordContextGenerator();
+    // private WordContextGenerator wcgen = new
+    // AggressiveWordContextGenerator();
+
     public TagDictMEL(TaggerOptions options) {
-	super(options);
-	this.taggedFile = options.getTaggedFile();
-	this.logBeta = options.getLogBeta();
-	this.unconstrainedByTagdict = options.isUnconstrainedByTagdict();
-	this.multitag = options.isMultitag();
+        super(options);
+        this.taggedFile = options.getTaggedFile();
+        this.logBeta = options.getLogBeta();
+        this.unconstrainedByTagdict = options.isUnconstrainedByTagdict();
+        this.multitag = options.isMultitag();
     }
 
-    public String[] tagSentence (String[] tokens, TagResults results) {
-	final int numTokens = tokens.length;
+    public String[] tagSentence(String[] tokens, TagResults results) {
+        final int numTokens = tokens.length;
 
-	//double chanceProb = 1.0/numStates;
+        // double chanceProb = 1.0/numStates;
 
-	// Make sure there is something to tag
-	if (numTokens < 1)
-	    return new String[0];
+        // Make sure there is something to tag
+        if (numTokens < 1)
+            return new String[0];
 
-	String[][] cachedWordFeatures = prepareForSentence(tokens);
-	
-	String[] labels = new String[numTokens];
+        String[][] cachedWordFeatures = prepareForSentence(tokens);
 
-	double totalProb = MathUtil.elog(1.0);
-	for (int tokenID=0; tokenID<numTokens; tokenID++) {
+        String[] labels = new String[numTokens];
 
-	    double[] probs = mTagGivenContext.getLogDistribution(cachedWordFeatures[tokenID]);
+        double totalProb = MathUtil.elog(1.0);
+        for (int tokenID = 0; tokenID < numTokens; tokenID++) {
 
-	    results.addEntropy(MathUtil.entropyOfLogDistribution(probs));
+            double[] probs = mTagGivenContext.getLogDistribution(cachedWordFeatures[tokenID]);
 
-	    int[] validTags = tagDictionary.getTags(tokens[tokenID]);
+            results.addEntropy(MathUtil.entropyOfLogDistribution(probs));
 
-	    int bestState = -1;
-	    double max = MathUtil.LOG_ZERO;
+            int[] validTags = tagDictionary.getTags(tokens[tokenID]);
 
-	    if (multitag) {
+            int bestState = -1;
+            double max = MathUtil.LOG_ZERO;
 
-		StringBuffer label = new StringBuffer();
-		int numAboveThreshold = 0;
-		if (unconstrainedByTagdict) {
-		    for (int iStateID=0; iStateID<numStates; iStateID++) {
-			if (probs[iStateID] > max) {
-			    max = probs[iStateID];
-			    bestState = iStateID;
-			}
-		    }
+            if (multitag) {
 
-		    final double threshold = logBeta + max;
-		    for (int iStateID=0; iStateID<numStates; iStateID++) {
-			if (probs[iStateID] > threshold) {
-			    //|| (tagDictionary.containsWord(tokens[tokenID])
-			    //	&& Arrays.binarySearch(validTags, iStateID) > -1)) {
-			    numAboveThreshold++;
-			    label.append(stateNames[iStateID]).append('\t');
-			    label.append(Math.exp(probs[iStateID])).append('\t');
-			}
-		    }
+                StringBuffer label = new StringBuffer();
+                int numAboveThreshold = 0;
+                if (unconstrainedByTagdict) {
+                    for (int iStateID = 0; iStateID < numStates; iStateID++) {
+                        if (probs[iStateID] > max) {
+                            max = probs[iStateID];
+                            bestState = iStateID;
+                        }
+                    }
 
-		} else {
-		    
-		    for (int i=0; i<validTags.length; i++) {
-			final int iStateID = validTags[i];
-			if (probs[iStateID] > max) {
-			    bestState = iStateID;
-			    max = probs[iStateID];
-			}
-		    }
-		    final double threshold = logBeta + max;
-		    for (int i=0; i<validTags.length; i++) {
-			final int iStateID = validTags[i];
-			if (probs[iStateID] > threshold) {
-			    numAboveThreshold++;
-			    label.append(stateNames[iStateID]).append('\t');
-			    label.append(Math.exp(probs[iStateID])).append('\t');
-			}
-		    }
+                    final double threshold = logBeta + max;
+                    for (int iStateID = 0; iStateID < numStates; iStateID++) {
+                        if (probs[iStateID] > threshold) {
+                            // || (tagDictionary.containsWord(tokens[tokenID])
+                            // && Arrays.binarySearch(validTags, iStateID) >
+                            // -1)) {
+                            numAboveThreshold++;
+                            label.append(stateNames[iStateID]).append('\t');
+                            label.append(Math.exp(probs[iStateID])).append('\t');
+                        }
+                    }
 
-		}
-		labels[tokenID] = numAboveThreshold+"\t"+label.toString().trim();
+                }
+                else {
 
-	    } else {
+                    for (int i = 0; i < validTags.length; i++) {
+                        final int iStateID = validTags[i];
+                        if (probs[iStateID] > max) {
+                            bestState = iStateID;
+                            max = probs[iStateID];
+                        }
+                    }
+                    final double threshold = logBeta + max;
+                    for (int i = 0; i < validTags.length; i++) {
+                        final int iStateID = validTags[i];
+                        if (probs[iStateID] > threshold) {
+                            numAboveThreshold++;
+                            label.append(stateNames[iStateID]).append('\t');
+                            label.append(Math.exp(probs[iStateID])).append('\t');
+                        }
+                    }
 
-		if (unconstrainedByTagdict) {
-		    for (int iStateID=0; iStateID<numStates; iStateID++) {
-			if (probs[iStateID] > max) {
-			    bestState = iStateID;
-			    max = probs[iStateID];
-			}
-		    }
-		} else {
-		    for (int i=0; i<validTags.length; i++) {
-			final int iStateID = validTags[i];
-			if (probs[iStateID] > max) {
-			    bestState = iStateID;
-			    max = probs[iStateID];
-			}
-		    }
-		}
-		labels[tokenID] = stateNames[bestState];
-	    }
+                }
+                labels[tokenID] = numAboveThreshold + "\t" + label.toString().trim();
 
-	    totalProb = MathUtil.elogProduct(totalProb, max);
-	}
+            }
+            else {
 
-	results.addPerplexity(Math.exp(-1*(totalProb/numTokens)));
+                if (unconstrainedByTagdict) {
+                    for (int iStateID = 0; iStateID < numStates; iStateID++) {
+                        if (probs[iStateID] > max) {
+                            bestState = iStateID;
+                            max = probs[iStateID];
+                        }
+                    }
+                }
+                else {
+                    for (int i = 0; i < validTags.length; i++) {
+                        final int iStateID = validTags[i];
+                        if (probs[iStateID] > max) {
+                            bestState = iStateID;
+                            max = probs[iStateID];
+                        }
+                    }
+                }
+                labels[tokenID] = stateNames[bestState];
+            }
 
-	//System.out.println(StringUtil.mergeJoin("/", tokens, labels));
-	
-	return labels;
+            totalProb = MathUtil.elogProduct(totalProb, max);
+        }
+
+        results.addPerplexity(Math.exp(-1 * (totalProb / numTokens)));
+
+        // System.out.println(StringUtil.mergeJoin("/", tokens, labels));
+
+        return labels;
     }
 
+    public void train() {
 
-    public void train () {
-	
-	try {
+        try {
 
-	    File taggedEvents = new File(taggedFile);
+            File taggedEvents = new File(taggedFile);
 
-	    // Set things up
-	    scanFile (taggedEvents);
-	    prepare();
+            // Set things up
+            scanFile(taggedEvents);
+            prepare();
 
-	    // now observe events
-	    mTagGivenContext = 
-		new TadmClassifier("initial", "tao_lmvm", numStates, 
-				   maxIterations, variance, numMachines);
+            // now observe events
+            mTagGivenContext = new TadmClassifier("initial", "tao_lmvm", numStates, maxIterations, variance,
+                    numMachines);
 
-	    //Set<String> words = tagDictionary.getWords();
-	    //for (String w: words) {
-	    //	String[] features = wcgen.getWordContexts(w);
-	    //	int[] tags = tagDictionary.getTags(w);
-	    //	for (int i=0; i<tags.length; i++)
-	    //	    mTagGivenContext.addEvent(tags[i], new Context(features));
-	    //}
+            // Set<String> words = tagDictionary.getWords();
+            // for (String w: words) {
+            // String[] features = wcgen.getWordContexts(w);
+            // int[] tags = tagDictionary.getTags(w);
+            // for (int i=0; i<tags.length; i++)
+            // mTagGivenContext.addEvent(tags[i], new Context(features));
+            // }
 
-	    DataReader inputReader = getDataReader(taggedEvents);
-	    try {
-	    	String[][] sequence = inputReader.nextSequence();
-	    
-	    	while (true) {
-	    
-	    	    String[] tokens = new String[sequence.length];
-	    	    for (int tokenID=0; tokenID<sequence.length; tokenID++)
-	    		tokens[tokenID] = sequence[tokenID][0];
-	    
-	    	    //String[][] cachedWordFeatures = prepareForSentence(tokens);
-	    
-	    	    for (int tokenID=0; tokenID<sequence.length; tokenID++) {
-	    
-	    		String tag = sequence[tokenID][1];
-	    
-	    		if (!tag.equals(Tagger.UNLABELED_TAG)) {
-	    		    
-	    		    String output = sequence[tokenID][0];
-	    		    
-	    		    //if (states.containsKey(sequence[tokenID][1])) {
-	    		    //	int t = states.get(sequence[tokenID][1]);
-	    		    //	mTagGivenContext.addEvent(t,
-	    		    //	  new Context(cachedWordFeatures[tokenID]));
-	    		    //}
-	    
-	    		    String[] features = wcgen.getWordContexts(output);
-	    		    int[] tags = tagDictionary.getTags(output);
-	    		    for (int i=0; i<tags.length; i++)
-	    		        mTagGivenContext.addEvent(tags[i], new Context(features));
-	    
-	    		}
-	    	    }
-	    
-	    	    sequence = inputReader.nextSequence();
-	    	}
-	    
-	    } catch (EOFException e) {
-	    	inputReader.close();
-	    }
-	    
-	} catch (IOException e) {
-	    System.out.println(e);
-	}
+            DataReader inputReader = getDataReader(taggedEvents);
+            try {
+                String[][] sequence = inputReader.nextSequence();
 
-	mTagGivenContext.train();
+                while (true) {
+
+                    String[] tokens = new String[sequence.length];
+                    for (int tokenID = 0; tokenID < sequence.length; tokenID++)
+                        tokens[tokenID] = sequence[tokenID][0];
+
+                    // String[][] cachedWordFeatures =
+                    // prepareForSentence(tokens);
+
+                    for (int tokenID = 0; tokenID < sequence.length; tokenID++) {
+
+                        String tag = sequence[tokenID][1];
+
+                        if (!tag.equals(Tagger.UNLABELED_TAG)) {
+
+                            String output = sequence[tokenID][0];
+
+                            // if (states.containsKey(sequence[tokenID][1])) {
+                            // int t = states.get(sequence[tokenID][1]);
+                            // mTagGivenContext.addEvent(t,
+                            // new Context(cachedWordFeatures[tokenID]));
+                            // }
+
+                            String[] features = wcgen.getWordContexts(output);
+                            int[] tags = tagDictionary.getTags(output);
+                            for (int i = 0; i < tags.length; i++)
+                                mTagGivenContext.addEvent(tags[i], new Context(features));
+
+                        }
+                    }
+
+                    sequence = inputReader.nextSequence();
+                }
+
+            }
+            catch (EOFException e) {
+                inputReader.close();
+            }
+
+        }
+        catch (IOException e) {
+            System.out.println(e);
+        }
+
+        mTagGivenContext.train();
     }
 
 }

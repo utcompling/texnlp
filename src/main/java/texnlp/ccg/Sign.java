@@ -19,8 +19,8 @@ package texnlp.ccg;
 
 /**
  * A sign consisting of a word and associated category.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Sign {
@@ -28,13 +28,13 @@ public class Sign {
     public String lex;
     public Cat cat;
 
-    public Sign (String l, Cat c) {
-	lex = l;
-	cat = c;
+    public Sign(String l, Cat c) {
+        lex = l;
+        cat = c;
     }
 
-    public String toString() { 
-	return lex + " := " + cat.toString();
+    public String toString() {
+        return lex + " := " + cat.toString();
     }
 
 }

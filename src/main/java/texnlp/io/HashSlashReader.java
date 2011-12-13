@@ -52,68 +52,68 @@ import java.util.ArrayList;
  */
 public class HashSlashReader extends DataReader {
 
-    public HashSlashReader (File f) throws IOException {
-	super(f);
+    public HashSlashReader(File f) throws IOException {
+        super(f);
     }
 
     // Read the first ###/### line to get started.
     protected void prepare() throws IOException {
-	inputReader.readLine();
+        inputReader.readLine();
     }
 
     public String[] nextToken() throws IOException, EOFException {
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
-	if (line.equals("###/###"))
-	    return nextToken();
-	else 
-	    return line.split("/");
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
+        if (line.equals("###/###"))
+            return nextToken();
+        else
+            return line.split("/");
     }
-    
+
     public String[][] nextSequence() throws IOException, EOFException {
-	
-	ArrayList<String[]> sequence = new ArrayList<String[]>();
 
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
+        ArrayList<String[]> sequence = new ArrayList<String[]>();
 
-	while (!(line.equals("###/###"))) {
-	    sequence.add(line.split("/"));
-	    line = inputReader.readLine();
-	    if (line == null)
-		line = "###/###";
-	    line = line.trim();
-	}
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	String[][] sequenceFixed = new String[sequence.size()][];
-	sequence.toArray(sequenceFixed);
-	return sequenceFixed;
+        while (!(line.equals("###/###"))) {
+            sequence.add(line.split("/"));
+            line = inputReader.readLine();
+            if (line == null)
+                line = "###/###";
+            line = line.trim();
+        }
+
+        String[][] sequenceFixed = new String[sequence.size()][];
+        sequence.toArray(sequenceFixed);
+        return sequenceFixed;
     }
 
     public String[] nextOutputSequence() throws IOException, EOFException {
-	
-	ArrayList<String> sequence = new ArrayList<String>();
 
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
+        ArrayList<String> sequence = new ArrayList<String>();
 
-	while (!(line.equals("###/###"))) {
-	    sequence.add(line.substring(0,line.indexOf('/')));
-	    line = inputReader.readLine();
-	    if (line == null)
-		line = "###/###";
-	    line = line.trim();
-	}
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	String[] sequenceFixed = new String[sequence.size()];
-	sequence.toArray(sequenceFixed);
-	return sequenceFixed;
+        while (!(line.equals("###/###"))) {
+            sequence.add(line.substring(0, line.indexOf('/')));
+            line = inputReader.readLine();
+            if (line == null)
+                line = "###/###";
+            line = line.trim();
+        }
+
+        String[] sequenceFixed = new String[sequence.size()];
+        sequence.toArray(sequenceFixed);
+        return sequenceFixed;
     }
 
 }

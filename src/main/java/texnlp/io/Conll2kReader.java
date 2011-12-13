@@ -45,73 +45,73 @@ import java.util.ArrayList;
  */
 public class Conll2kReader extends DataReader {
 
-    public Conll2kReader (File f) throws IOException {
-	super(f);
+    public Conll2kReader(File f) throws IOException {
+        super(f);
     }
 
     public String[] nextToken() throws IOException, EOFException {
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
-	if (line.length() == 0)
-	    return nextToken();
-	else 
-	    return line.split("\t");
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
+        if (line.length() == 0)
+            return nextToken();
+        else
+            return line.split("\t");
     }
-    
+
     public String[][] nextSequence() throws IOException, EOFException {
-	
-	ArrayList<String[]> sequence = new ArrayList<String[]>();
 
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
+        ArrayList<String[]> sequence = new ArrayList<String[]>();
 
-	if (line.length() == 0)
-	    return nextSequence();
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	while (line.length() != 0) {
-	    sequence.add(line.split("\t"));
-	    line = inputReader.readLine();
-	    if (line == null)
-		line = "";
-	    line = line.trim();
-	}
+        if (line.length() == 0)
+            return nextSequence();
 
-	String[][] sequenceFixed = new String[sequence.size()][];
-	sequence.toArray(sequenceFixed);
-	return sequenceFixed;
+        while (line.length() != 0) {
+            sequence.add(line.split("\t"));
+            line = inputReader.readLine();
+            if (line == null)
+                line = "";
+            line = line.trim();
+        }
+
+        String[][] sequenceFixed = new String[sequence.size()][];
+        sequence.toArray(sequenceFixed);
+        return sequenceFixed;
     }
 
     public String[] nextOutputSequence() throws IOException, EOFException {
-	
-	ArrayList<String> sequence = new ArrayList<String>();
 
-	String line = inputReader.readLine();
-	if (line == null)
-	    throw new EOFException();
-	line = line.trim();
+        ArrayList<String> sequence = new ArrayList<String>();
 
-	if (line.length() == 0)
-	    return nextOutputSequence();
+        String line = inputReader.readLine();
+        if (line == null)
+            throw new EOFException();
+        line = line.trim();
 
-	while (line.length() != 0) {
-	    if (line.indexOf('\t') > 0)
-		sequence.add(line.substring(0,line.indexOf('\t')));
-	    else
-		sequence.add(line);
+        if (line.length() == 0)
+            return nextOutputSequence();
 
-	    line = inputReader.readLine();
-	    if (line == null)
-		line = "";
-	    line = line.trim();
-	}
+        while (line.length() != 0) {
+            if (line.indexOf('\t') > 0)
+                sequence.add(line.substring(0, line.indexOf('\t')));
+            else
+                sequence.add(line);
 
-	String[] sequenceFixed = new String[sequence.size()];
-	sequence.toArray(sequenceFixed);
-	return sequenceFixed;
+            line = inputReader.readLine();
+            if (line == null)
+                line = "";
+            line = line.trim();
+        }
+
+        String[] sequenceFixed = new String[sequence.size()];
+        sequence.toArray(sequenceFixed);
+        return sequenceFixed;
     }
 
 }

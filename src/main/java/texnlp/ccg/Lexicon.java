@@ -17,49 +17,53 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
-import gnu.trove.*;
+import gnu.trove.THashMap;
+import gnu.trove.THashSet;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A lexicon mapping each word to a set of categories.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Lexicon {
 
     Set<Cat> defaultCats;
 
-    Map<String,Set<Sign>> words2cats = new THashMap<String, Set<Sign>>();
+    Map<String, Set<Sign>> words2cats = new THashMap<String, Set<Sign>>();
 
-    public Lexicon () {}
-
-    public Lexicon (Set<Cat> defaultCats) {
-	this.defaultCats = defaultCats;
+    public Lexicon() {
     }
 
-    public void addEntry (String word, Cat c) {
-	
-	if (!words2cats.containsKey(word))
-	    words2cats.put(word, new THashSet<Sign>());
-
-	words2cats.get(word).add(new Sign(word,c));
+    public Lexicon(Set<Cat> defaultCats) {
+        this.defaultCats = defaultCats;
     }
 
-    public Set<Sign> getEntries (String word) {
-	if (!words2cats.containsKey(word))
-	    return getDefaultEntries(word);
-	else
-	    return words2cats.get(word);
-	
+    public void addEntry(String word, Cat c) {
+
+        if (!words2cats.containsKey(word))
+            words2cats.put(word, new THashSet<Sign>());
+
+        words2cats.get(word).add(new Sign(word, c));
     }
 
-    public Set<Sign> getDefaultEntries (String word) {
-	Set<Sign> entries = new THashSet<Sign>();
-	for (Cat c: defaultCats)
-	    entries.add(new Sign(word, c));
+    public Set<Sign> getEntries(String word) {
+        if (!words2cats.containsKey(word))
+            return getDefaultEntries(word);
+        else
+            return words2cats.get(word);
 
-	return entries;
+    }
+
+    public Set<Sign> getDefaultEntries(String word) {
+        Set<Sign> entries = new THashSet<Sign>();
+        for (Cat c : defaultCats)
+            entries.add(new Sign(word, c));
+
+        return entries;
     }
 
 }

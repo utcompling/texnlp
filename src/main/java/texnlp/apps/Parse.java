@@ -17,46 +17,47 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.apps;
 
-import texnlp.ccg.*;
+import texnlp.ccg.CKY;
+import texnlp.ccg.Cell;
+import texnlp.ccg.TestLexicon;
 
 /**
  * Get the CCG parser going.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Parse {
 
-    public static void parseStuff () {
-	String sentence = "Calvin sees Hobbes";
-	System.out.println("Parsing: " + sentence);
+    public static void parseStuff() {
+        String sentence = "Calvin sees Hobbes";
+        System.out.println("Parsing: " + sentence);
 
-	CKY parser = new CKY(new TestLexicon());
+        CKY parser = new CKY(new TestLexicon());
 
-	Cell result = parser.parse(sentence);
-	System.out.println(result);
+        Cell result = parser.parse(sentence);
+        System.out.println(result);
 
-	System.out.println(parser.parse("Calvin walks"));
-	System.out.println(parser.parse("sees Calvin"));
+        System.out.println(parser.parse("Calvin walks"));
+        System.out.println(parser.parse("sees Calvin"));
 
-	System.out.println(parser.parse("Calvin thinks Susie walks"));
-	System.out.println(parser.parse("boy who sees Hobbes"));
-	System.out.println(parser.parse("boy who sees Hobbes thinks Susie walks"));
+        System.out.println(parser.parse("Calvin thinks Susie walks"));
+        System.out.println(parser.parse("boy who sees Hobbes"));
+        System.out.println(parser.parse("boy who sees Hobbes thinks Susie walks"));
 
-	System.out.println(parser.parse("Calvin sees Moe"));
+        System.out.println(parser.parse("Calvin sees Moe"));
 
-	System.out.println(parser.parse("buffalo buffalo buffalo"));
+        System.out.println(parser.parse("buffalo buffalo buffalo"));
 
-	//System.out.println(parser.parse(""));
-
-    }
-
-    public static void main (String[] args) {
-
-	//genCats();
-	parseStuff();
+        // System.out.println(parser.parse(""));
 
     }
 
+    public static void main(String[] args) {
+
+        // genCats();
+        parseStuff();
+
+    }
 
 }

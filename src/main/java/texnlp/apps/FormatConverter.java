@@ -17,104 +17,112 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.apps;
 
-import java.io.*;
-import org.apache.commons.cli.*;
-import texnlp.io.*;
-import texnlp.util.*;
+import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
+import texnlp.io.Conll2kReader;
+import texnlp.io.DataReader;
+import texnlp.io.PipeSepReader;
+import texnlp.util.StringUtil;
 
 /**
  * Convert between formats.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class FormatConverter {
 
-    public static void convertToCandc (String file) {
+    public static void convertToCandc(String file) {
 
-	try {
-	    DataReader inputReader = new Conll2kReader(new File(file));
-	    try {
-		while (true) {
-		    String[][] sequence = inputReader.nextSequence();
-		    if (sequence.length > 0) {
-			System.out.print(StringUtil.join("|", sequence[0]));
-			for (int i=1; i<sequence.length; i++)
-			    System.out.print(" " + StringUtil.join("|", sequence[i]));
-			System.out.println();
-		    }
-		}
-	    } catch (EOFException e) {
-		inputReader.close();
-	    }
-	    
-	} catch (IOException e) {
-	    System.out.println("Error reading file: " + file);
-	    System.out.println(e);
-	}
+        try {
+            DataReader inputReader = new Conll2kReader(new File(file));
+            try {
+                while (true) {
+                    String[][] sequence = inputReader.nextSequence();
+                    if (sequence.length > 0) {
+                        System.out.print(StringUtil.join("|", sequence[0]));
+                        for (int i = 1; i < sequence.length; i++)
+                            System.out.print(" " + StringUtil.join("|", sequence[i]));
+                        System.out.println();
+                    }
+                }
+            } catch (EOFException e) {
+                inputReader.close();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + file);
+            System.out.println(e);
+        }
     }
 
-    public static void convertToConll (String file) {
+    public static void convertToConll(String file) {
 
-	try {
-	    DataReader inputReader = new PipeSepReader(new File(file));
-	    try {
-		while (true) {
-		    String[][] sequence = inputReader.nextSequence();
-		    if (sequence.length > 0) {
-			System.out.print(StringUtil.join("\t", sequence[0]));
-			for (int i=1; i<sequence.length; i++)
-			    System.out.print("\n" + StringUtil.join("\t", sequence[i]));
-			System.out.println();
-			System.out.println();
-		    }
-		}
-	    } catch (EOFException e) {
-		inputReader.close();
-	    }
-	    
-	} catch (IOException e) {
-	    System.out.println("Error reading file: " + file);
-	    System.out.println(e);
-	}
+        try {
+            DataReader inputReader = new PipeSepReader(new File(file));
+            try {
+                while (true) {
+                    String[][] sequence = inputReader.nextSequence();
+                    if (sequence.length > 0) {
+                        System.out.print(StringUtil.join("\t", sequence[0]));
+                        for (int i = 1; i < sequence.length; i++)
+                            System.out.print("\n" + StringUtil.join("\t", sequence[i]));
+                        System.out.println();
+                        System.out.println();
+                    }
+                }
+            } catch (EOFException e) {
+                inputReader.close();
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + file);
+            System.out.println(e);
+        }
     }
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
 
-	CommandLineParser optparse = new PosixParser();
+        CommandLineParser optparse = new PosixParser();
 
-	// create the Options
-	Options options = new Options();
-	options.addOption( "o", "output", true, "the output format" );
-	options.addOption( "h", "help", false, "help" );
+        // create the Options
+        Options options = new Options();
+        options.addOption("o", "output", true, "the output format");
+        options.addOption("h", "help", false, "help");
 
-	try {
-	    CommandLine cline = optparse.parse(options, args);
-	    
-	    if (cline.hasOption('h')) {
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp(
-			"java texnlp.apps.FormatConverter options filename", 
-			options);
-		System.exit(0);
-		
-	    }
+        try {
+            CommandLine cline = optparse.parse(options, args);
 
-	    String outputFormat = "candc";
-	    if (cline.hasOption('o'))
-		outputFormat = cline.getOptionValue('o');
+            if (cline.hasOption('h')) {
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp("java texnlp.apps.FormatConverter options filename", options);
+                System.exit(0);
 
+            }
 
-	    if (outputFormat.equals("conll"))
-		convertToConll(cline.getArgs()[0]);
-	    else
-		convertToCandc(cline.getArgs()[0]);
+            String outputFormat = "candc";
+            if (cline.hasOption('o'))
+                outputFormat = cline.getOptionValue('o');
 
-	} catch(ParseException exp ) {
-	    System.out.println( "Unexpected exception parsing command line options:" + exp.getMessage() );
-	}
-	
+            if (outputFormat.equals("conll"))
+                convertToConll(cline.getArgs()[0]);
+            else
+                convertToCandc(cline.getArgs()[0]);
+
+        }
+        catch (ParseException exp) {
+            System.out.println("Unexpected exception parsing command line options:" + exp.getMessage());
+        }
+
     }
-
 
 }

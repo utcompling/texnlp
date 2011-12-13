@@ -17,74 +17,78 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import java.util.*;
-import gnu.trove.*;
-import texnlp.util.*;
+import gnu.trove.TObjectDoubleHashMap;
+import gnu.trove.TObjectDoubleIterator;
+
+import java.util.Set;
+
+import texnlp.util.MathUtil;
 
 /**
  * Maps objects to logarithmic values (of probabilities).
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class LogDistribution extends TObjectDoubleHashMap<String> {
 
-    public LogDistribution () {}
-
-    public LogDistribution (String firstObs) {
-	observe(firstObs);
+    public LogDistribution() {
     }
 
-    public double getLogProb (String s) {
-	if (containsKey(s))
-	    return get(s);
-	else
-	    return MathUtil.LOG_ZERO;
+    public LogDistribution(String firstObs) {
+        observe(firstObs);
     }
 
-    public void observe (String s) {
-	adjustOrPutValue(s, 1.0, 1.0);
+    public double getLogProb(String s) {
+        if (containsKey(s))
+            return get(s);
+        else
+            return MathUtil.LOG_ZERO;
     }
 
-    public void resetValue (String key, double val) {
-	put(key, val);
+    public void observe(String s) {
+        adjustOrPutValue(s, 1.0, 1.0);
     }
 
-    public void makeUniform (Set<String> values) {
-	double uniformProb = MathUtil.elog(1.0/values.size());
-	for (String key: values)
-	    put(key, uniformProb);
+    public void resetValue(String key, double val) {
+        put(key, val);
     }
 
-    public void doneObserving () {
-	double total = MathUtil.sum(_values);
-	for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
-	    it.advance();
-	    it.setValue(MathUtil.elog(it.value()/total));
-	}
+    public void makeUniform(Set<String> values) {
+        double uniformProb = MathUtil.elog(1.0 / values.size());
+        for (String key : values)
+            put(key, uniformProb);
+    }
+
+    public void doneObserving() {
+        double total = MathUtil.sum(_values);
+        for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
+            it.advance();
+            it.setValue(MathUtil.elog(it.value() / total));
+        }
 
     }
 
-    public void checkSum () {
-	double sum = 0.0;
-	
-	for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
-	    it.advance();
-	    sum += MathUtil.eexp(it.value());
-	}
-	System.out.println("Sums to: " + sum);
+    public void checkSum() {
+        double sum = 0.0;
+
+        for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
+            it.advance();
+            sum += MathUtil.eexp(it.value());
+        }
+        System.out.println("Sums to: " + sum);
     }
 
-    public String toString () {
-	StringBuffer sb = new StringBuffer();
-	for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
-	    it.advance();
-	    double val = MathUtil.eexp(it.value());
-	    if (val != 0.0)
-		sb.append("\t" + it.key() + " -> " + val + "\n");
-	}
-	//checkSum();
-	return sb.toString();
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (TObjectDoubleIterator<String> it = iterator(); it.hasNext();) {
+            it.advance();
+            double val = MathUtil.eexp(it.value());
+            if (val != 0.0)
+                sb.append("\t" + it.key() + " -> " + val + "\n");
+        }
+        // checkSum();
+        return sb.toString();
     }
 
 }

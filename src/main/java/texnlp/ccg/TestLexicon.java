@@ -21,40 +21,39 @@ import gnu.trove.THashSet;
 
 /**
  * A small, pre-defined lexicon for testing purposes.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class TestLexicon extends Lexicon {
 
-    public TestLexicon () {
+    public TestLexicon() {
 
-	Cat s = new AtomCat(Cat.S);
-	Cat n = new AtomCat(Cat.N);
-	Cat intrans = new ComplexCat(s, new Slash(Slash.L), n);
-	Cat trans = new ComplexCat(intrans, new Slash(Slash.R), n);
-	Cat sentcomp = new ComplexCat(intrans, new Slash(Slash.R), s);
-	Cat postnmod = new ComplexCat(n, new Slash(Slash.L), n);
-	Cat subjrel =  new ComplexCat(postnmod, new Slash(Slash.R), intrans);
+        Cat s = new AtomCat(Cat.S);
+        Cat n = new AtomCat(Cat.N);
+        Cat intrans = new ComplexCat(s, new Slash(Slash.L), n);
+        Cat trans = new ComplexCat(intrans, new Slash(Slash.R), n);
+        Cat sentcomp = new ComplexCat(intrans, new Slash(Slash.R), s);
+        Cat postnmod = new ComplexCat(n, new Slash(Slash.L), n);
+        Cat subjrel = new ComplexCat(postnmod, new Slash(Slash.R), intrans);
 
+        defaultCats = new THashSet<Cat>();
+        defaultCats.add(intrans);
+        defaultCats.add(trans);
+        defaultCats.add(n);
 
-	defaultCats = new THashSet<Cat>();
-	defaultCats.add(intrans);
-	defaultCats.add(trans);
-	defaultCats.add(n);
+        addEntry("Calvin", n);
+        addEntry("Hobbes", n);
+        addEntry("Susie", n);
+        addEntry("boy", n);
+        addEntry("girl", n);
+        addEntry("tiger", n);
 
-	addEntry("Calvin",n);
-	addEntry("Hobbes",n);
-	addEntry("Susie",n);
-	addEntry("boy",n);
-	addEntry("girl",n);
-	addEntry("tiger",n);
+        addEntry("walks", intrans);
+        addEntry("sees", trans);
+        addEntry("thinks", sentcomp);
 
-	addEntry("walks",intrans);
-	addEntry("sees",trans);
-	addEntry("thinks",sentcomp);
-
-	addEntry("who",subjrel);
+        addEntry("who", subjrel);
 
     }
 

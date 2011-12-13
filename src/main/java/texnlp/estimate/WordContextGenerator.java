@@ -1,11 +1,11 @@
 package texnlp.estimate;
 
-import java.util.regex.*;
+import java.util.regex.Pattern;
 
 /**
  * Generate contextual predicates for a word.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.4 $, $Date: 2004/12/17 15:08:39 $
  */
 public abstract class WordContextGenerator {
@@ -18,10 +18,10 @@ public abstract class WordContextGenerator {
     protected static Pattern rexxx = Pattern.compile("[a-z]+"); // blue
     protected static Pattern reWordDashWord = Pattern.compile("\\w+-\\w+"); // near-record
     protected static Pattern reWordUnderscoreWord = Pattern.compile("\\w+_\\w+"); // near_record
-    protected static Pattern reAbbrev = Pattern.compile("(([A-Z]\\.|)+|[A-Za-z]\\.)"); // U.S.A. or Oct.
-	
+    protected static Pattern reAbbrev = Pattern.compile("(([A-Z]\\.|)+|[A-Za-z]\\.)"); // U.S.A.
+                                                                                       // or
+                                                                                       // Oct.
 
-    public abstract String[] getWordContexts (String word);
-
+    public abstract String[] getWordContexts(String word);
 
 }

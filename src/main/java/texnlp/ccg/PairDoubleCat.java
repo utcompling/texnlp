@@ -17,31 +17,30 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import java.util.*;
+import java.util.Comparator;
 
 /**
  * A wrapper class storing a double and a Cat for sorting purposes.
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class PairDoubleCat {
     public double doubleValue;
     public Cat cat;
 
-    public PairDoubleCat (double d, Cat c) {
-	doubleValue = d;
-	cat = c;
+    public PairDoubleCat(double d, Cat c) {
+        doubleValue = d;
+        cat = c;
     }
 
-    public String toString () {
-	return String.valueOf(doubleValue) + " :: " + cat.toString();
+    public String toString() {
+        return String.valueOf(doubleValue) + " :: " + cat.toString();
     }
-    
-    public static Comparator<PairDoubleCat> CMP = 
-	new Comparator<PairDoubleCat>() {
-		public int compare(PairDoubleCat x, PairDoubleCat y) {
-		    return Double.compare(x.doubleValue, y.doubleValue);
-		}
+
+    public static Comparator<PairDoubleCat> CMP = new Comparator<PairDoubleCat>() {
+        public int compare(PairDoubleCat x, PairDoubleCat y) {
+            return Double.compare(x.doubleValue, y.doubleValue);
+        }
     };
 }

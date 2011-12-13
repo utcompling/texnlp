@@ -29,13 +29,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
-import texnlp.io.*;
+import texnlp.io.Conll2kReader;
+import texnlp.io.DataReader;
+import texnlp.io.HashSlashReader;
+import texnlp.io.PipeSepReader;
 import texnlp.util.TaggerOptions;
 
 /**
  * A Tagger (possible sequence based or just a labeler).
- *
- * @author  Jason Baldridge
+ * 
+ * @author Jason Baldridge
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public abstract class Tagger {
@@ -47,103 +50,104 @@ public abstract class Tagger {
     protected TObjectIntHashMap<String> states;
     protected String[] stateNames;
     protected int numStates = 0;
-    protected TObjectIntHashMap<String> typeFrequencies = 
-	new TObjectIntHashMap<String>();
+    protected TObjectIntHashMap<String> typeFrequencies = new TObjectIntHashMap<String>();
     protected THashSet<String> highFrequencyWords;
     protected int numTokens = 0;
     protected boolean useMultitags = false;
-    
-    protected Tagger (TaggerOptions taggerOptions) {
-	this.outputDir = taggerOptions.getOutputDir();
-	final String tagsetFile = taggerOptions.getTagsetFile();
-	setDataIOType(taggerOptions.getFormat());
 
-	if (!tagsetFile.equals("")) {
-	    states = new TObjectIntHashMap<String>();
+    protected Tagger(TaggerOptions taggerOptions) {
+        this.outputDir = taggerOptions.getOutputDir();
+        final String tagsetFile = taggerOptions.getTagsetFile();
+        setDataIOType(taggerOptions.getFormat());
 
-	    try {
-		BufferedReader br = 
-		    new BufferedReader(new InputStreamReader(new FileInputStream(tagsetFile)));
+        if (!tagsetFile.equals("")) {
+            states = new TObjectIntHashMap<String>();
 
-		int stateID = 0;
-		String line = null;
-		while ( (line = br.readLine()) != null)
-		    states.put(line.trim(), stateID++);
+            try {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(tagsetFile)));
 
-		states.trimToSize();
+                int stateID = 0;
+                String line = null;
+                while ((line = br.readLine()) != null)
+                    states.put(line.trim(), stateID++);
 
-		numStates = stateID;
-		stateNames = new String[numStates];
-		for (TObjectIntIterator<String> it = states.iterator(); it.hasNext();) {
-		    it.advance();
-		    stateNames[it.value()] = it.key();
-		}
+                states.trimToSize();
 
-	    }  catch (IOException e) {
-		System.out.println("Could not open tagset file: " + tagsetFile);
-	    }
-	}
+                numStates = stateID;
+                stateNames = new String[numStates];
+                for (TObjectIntIterator<String> it = states.iterator(); it.hasNext();) {
+                    it.advance();
+                    stateNames[it.value()] = it.key();
+                }
+
+            }
+            catch (IOException e) {
+                System.out.println("Could not open tagset file: " + tagsetFile);
+            }
+        }
     }
 
-    public abstract void train ();
-    public abstract String[] tagSentence (String[] tokens, TagResults results);
-    public Vector<String[]> tagSentenceIte(String[] tokens,
-            TagResults results) {
-        throw new RuntimeException(
-                getClass().getName() + " has not yet been implemented");
+    public abstract void train();
+
+    public abstract String[] tagSentence(String[] tokens, TagResults results);
+
+    public Vector<String[]> tagSentenceIte(String[] tokens, TagResults results) {
+        throw new RuntimeException(getClass().getName() + " has not yet been implemented");
     }
 
     // Can be overridden to add in unknown tokens, etc.
-    protected String[] normalizeTokens (String[] tokens) {
-	return tokens;
+    protected String[] normalizeTokens(String[] tokens) {
+        return tokens;
     }
 
-
-    public void setDataIOType (String type) {
-	dataIOType = type;
+    public void setDataIOType(String type) {
+        dataIOType = type;
     }
 
-    public void setTagDictionary (String dictfile) {
-	try {
-	    tagDictionary = new TagDictionary(getDataReader(new File(dictfile)), states);
-	} catch (IOException e) { 
-	    System.out.println("Unable to load tag dictionary from: " + dictfile);
-	    System.exit(0);
-	}
+    public void setTagDictionary(String dictfile) {
+        try {
+            tagDictionary = new TagDictionary(getDataReader(new File(dictfile)), states);
+        }
+        catch (IOException e) {
+            System.out.println("Unable to load tag dictionary from: " + dictfile);
+            System.exit(0);
+        }
 
     }
 
     protected DataReader getDataReader(File f) throws IOException {
-	if (dataIOType.equals("hashslash"))
-	    return new HashSlashReader(f);
-	
-	else if (dataIOType.equals("pipe"))
-	    return new PipeSepReader(f);
-	
-	else if (dataIOType.equals("tab"))
-	    return new Conll2kReader(f);
-	else
-	    throw new RuntimeException("Unexpected data format: " + dataIOType);
+        if (dataIOType.equals("hashslash"))
+            return new HashSlashReader(f);
+
+        else if (dataIOType.equals("pipe"))
+            return new PipeSepReader(f);
+
+        else if (dataIOType.equals("tab"))
+            return new Conll2kReader(f);
+        else
+            throw new RuntimeException("Unexpected data format: " + dataIOType);
     }
 
     // Tag an entire file
-    public void tagFile (TagResults results) {
-	try {
-	    DataReader inputReader = getDataReader(results.getInput());
-	    try {
-		while (true) {
-		    String[] toks = inputReader.nextOutputSequence();
-		    //System.out.println(StringUtil.join(toks));
-		    String[] tags = tagSentence(toks, results);
-		    results.addTags(toks, tags);
-		    
-		}
-	    } catch (EOFException e) {
-		inputReader.close();
-	    }
-	} catch (IOException e) {
-	    System.out.println("Error reading file for tagging:\n"+e);
-	}
+    public void tagFile(TagResults results) {
+        try {
+            DataReader inputReader = getDataReader(results.getInput());
+            try {
+                while (true) {
+                    String[] toks = inputReader.nextOutputSequence();
+                    // System.out.println(StringUtil.join(toks));
+                    String[] tags = tagSentence(toks, results);
+                    results.addTags(toks, tags);
+
+                }
+            }
+            catch (EOFException e) {
+                inputReader.close();
+            }
+        }
+        catch (IOException e) {
+            System.out.println("Error reading file for tagging:\n" + e);
+        }
     }
 
     // Tag an entire file for use in ITE
@@ -155,16 +159,18 @@ public abstract class Tagger {
                 while (true) {
                     String[] toks = inputReader.nextOutputSequence();
                     String[] tags = tagSentence(toks, results);
-                    //generate output for active learning code
+                    // generate output for active learning code
                     results.addTags(toks, tags);
-                    //generate output for ite
+                    // generate output for ite
                     Vector<String[]> tagsIte = tagSentenceIte(toks, results);
                     sentences.add(results.addTagsIte(toks, tagsIte));
                 }
-            } catch (EOFException e) {
+            }
+            catch (EOFException e) {
                 inputReader.close();
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             System.out.println("Error reading file for tagging:\n" + e);
         }
         return sentences;
@@ -173,143 +179,146 @@ public abstract class Tagger {
     /**
      * Initialize global data structures based on first scan of the input.
      */
-    protected void scanFile (File events) throws IOException {
+    protected void scanFile(File events) throws IOException {
 
-	DataReader inputReader = getDataReader(events);
-	try {
-	String[] token = inputReader.nextToken();
+        DataReader inputReader = getDataReader(events);
+        try {
+            String[] token = inputReader.nextToken();
 
-	// populate the tagset if one hasn't been supplied, otherwise use the given one
-	if (numStates == 0) {
+            // populate the tagset if one hasn't been supplied, otherwise use
+            // the given one
+            if (numStates == 0) {
 
-	    states = new TObjectIntHashMap<String>();
-	    int stateIndex = 0;
+                states = new TObjectIntHashMap<String>();
+                int stateIndex = 0;
 
-	    try {
-		
-		while (true) {
-		    if (!useMultitags 
-			&& token.length > 2 
-			&& Character.isDigit(token[1].charAt(0)))
+                try {
 
-			useMultitags = true;
+                    while (true) {
+                        if (!useMultitags && token.length > 2 && Character.isDigit(token[1].charAt(0)))
 
+                            useMultitags = true;
 
-		    int firstTagIndex = 1;
-		    if (useMultitags)
-			firstTagIndex = 2;
-			
-		    boolean wasTagged = false;
-		    for (int i=firstTagIndex; i<token.length; i+=2) {
-			String tag = token[i];
+                        int firstTagIndex = 1;
+                        if (useMultitags)
+                            firstTagIndex = 2;
 
-			if (!tag.equals(Tagger.UNLABELED_TAG)) {
-			    wasTagged = true;
-			    if (!states.containsKey(tag)) {
-				states.put(tag, stateIndex);
-				stateIndex++;
-			    }
-			    
-			    int stateID = states.get(tag);
-			    tagDictionary.addTagForWord(token[0], stateID);
-			    //System.out.print(token[0]+"::"+stateID+" ");
-			}
-		    }
-		    if (wasTagged) {
-			typeFrequencies.adjustOrPutValue(token[0], 1, 1);
-			numTokens++;
-		    }
-		    token = inputReader.nextToken();
-		}
+                        boolean wasTagged = false;
+                        for (int i = firstTagIndex; i < token.length; i += 2) {
+                            String tag = token[i];
 
-	    } catch (EOFException e) {
-		inputReader.close();
-	    }
+                            if (!tag.equals(Tagger.UNLABELED_TAG)) {
+                                wasTagged = true;
+                                if (!states.containsKey(tag)) {
+                                    states.put(tag, stateIndex);
+                                    stateIndex++;
+                                }
 
-	    numStates = stateIndex;
+                                int stateID = states.get(tag);
+                                tagDictionary.addTagForWord(token[0], stateID);
+                                // System.out.print(token[0]+"::"+stateID+" ");
+                            }
+                        }
+                        if (wasTagged) {
+                            typeFrequencies.adjustOrPutValue(token[0], 1, 1);
+                            numTokens++;
+                        }
+                        token = inputReader.nextToken();
+                    }
 
-	    states.trimToSize();
-	    stateNames = new String[numStates];
-	    for (TObjectIntIterator<String> it = states.iterator(); it.hasNext();) {
-		it.advance();
-		stateNames[it.value()] = it.key();
-	    }
+                }
+                catch (EOFException e) {
+                    inputReader.close();
+                }
 
-	} else {
-	    
-	    try {
-		while (true) {
-		    if (!useMultitags 
-			&& token.length > 2 
-			&& Character.isDigit(token[1].charAt(0)))
+                numStates = stateIndex;
 
-			useMultitags = true;
-		    
-		    int firstTagIndex = 1;
-		    if (useMultitags)
-			firstTagIndex = 2;
+                states.trimToSize();
+                stateNames = new String[numStates];
+                for (TObjectIntIterator<String> it = states.iterator(); it.hasNext();) {
+                    it.advance();
+                    stateNames[it.value()] = it.key();
+                }
 
-		    boolean wasTagged = false;
-		    for (int i=firstTagIndex; i<token.length; i+=2) {
-			String tag = token[i];
+            }
+            else {
 
-			if (!tag.equals(Tagger.UNLABELED_TAG)) {
-			    wasTagged = true;
-			    if (states.containsKey(tag))
-				tagDictionary.addTagForWord(token[0], states.get(tag));
-			}
-		    }
-		    if (wasTagged) {
-			typeFrequencies.adjustOrPutValue(token[0], 1, 1);
-			numTokens++;
-		    }
+                try {
+                    while (true) {
+                        if (!useMultitags && token.length > 2 && Character.isDigit(token[1].charAt(0)))
 
-		    token = inputReader.nextToken();
-		}
+                            useMultitags = true;
 
-	    } catch (EOFException e) {
-		inputReader.close();
-	    }
-	}
-	} catch (EOFException e) {
-	    inputReader.close();
-	}
+                        int firstTagIndex = 1;
+                        if (useMultitags)
+                            firstTagIndex = 2;
+
+                        boolean wasTagged = false;
+                        for (int i = firstTagIndex; i < token.length; i += 2) {
+                            String tag = token[i];
+
+                            if (!tag.equals(Tagger.UNLABELED_TAG)) {
+                                wasTagged = true;
+                                if (states.containsKey(tag))
+                                    tagDictionary.addTagForWord(token[0], states.get(tag));
+                            }
+                        }
+                        if (wasTagged) {
+                            typeFrequencies.adjustOrPutValue(token[0], 1, 1);
+                            numTokens++;
+                        }
+
+                        token = inputReader.nextToken();
+                    }
+
+                }
+                catch (EOFException e) {
+                    inputReader.close();
+                }
+            }
+        }
+        catch (EOFException e) {
+            inputReader.close();
+        }
     }
 
-    // handle frequency relative cutoffs for feature extraction, finalize the tag dictionary
-    protected void prepare () {
+    // handle frequency relative cutoffs for feature extraction, finalize the
+    // tag dictionary
+    protected void prepare() {
 
-	final int numTypes = typeFrequencies.size();
-	final double averageFreq = (double)numTokens/numTypes;
+        final int numTypes = typeFrequencies.size();
+        final double averageFreq = (double) numTokens / numTypes;
 
-	highFrequencyWords = new THashSet<String>(numTypes);
-	TObjectIntIterator<String> it = typeFrequencies.iterator();
-	for (int i = numTypes; i-- > 0;) {
-	    it.advance();
-	    if (it.value() > averageFreq)
-		highFrequencyWords.add(it.key());
-	}
-	
-	typeFrequencies = null;
-	highFrequencyWords.trimToSize();
-	
-	tagDictionary.finalize(numStates);
+        highFrequencyWords = new THashSet<String>(numTypes);
+        TObjectIntIterator<String> it = typeFrequencies.iterator();
+        for (int i = numTypes; i-- > 0;) {
+            it.advance();
+            if (it.value() > averageFreq)
+                highFrequencyWords.add(it.key());
+        }
+
+        typeFrequencies = null;
+        highFrequencyWords.trimToSize();
+
+        tagDictionary.finalize(numStates);
     }
-    
+
     public class PairIte implements Comparable {
- 
-	public String token;
-	public double prob;
- 
-	public int compareTo(Object other) {
-	    if (prob == ((PairIte) other).prob) {
-		return token.compareToIgnoreCase(((PairIte) other).token);
-	    } else if (prob > ((PairIte) other).prob) {
-		return -1;
-	    } else {
-		return 1;
-	    }
-	}
+
+        public String token;
+        public double prob;
+
+        public int compareTo(Object other) {
+            if (prob == ((PairIte) other).prob) {
+                return token.compareToIgnoreCase(((PairIte) other).token);
+            }
+            else if (prob > ((PairIte) other).prob) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
     }
 
 }
