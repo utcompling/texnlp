@@ -53,6 +53,12 @@ import texnlp.util.IntStringPair;
 public class Score {
 
     public static void score(String modelFile, String goldFile, String trainFile, String format, int column) {
+        ScoreResults scoreResults = getScore(modelFile, goldFile, trainFile, format, column);
+        System.out.println();
+        System.out.println(scoreResults);
+    }
+
+    public static ScoreResults getScore(String modelFile, String goldFile, String trainFile, String format, int column) {
 
         List<String[][]> modelTags = slurpFile(modelFile, format);
         List<String[][]> goldTags = slurpFile(goldFile, format);
@@ -77,19 +83,7 @@ public class Score {
                 ambigWords.add(word);
         }
 
-        TObjectIntHashMap<String> errors = new TObjectIntHashMap<String>();
-
-        int total = 0;
-        int correct = 0;
-        int unseenTotal = 0;
-        int unseenCorrect = 0;
-        int knownTotal = 0;
-        int knownCorrect = 0;
-        int sentenceTotal = 0;
-        int sentenceCorrect = 0;
-
-        int ambigCorrect = 0;
-        int ambigTotal = 0;
+        ScoreResults scoreResults = new ScoreResults();
 
         for (int i = 0; i < goldTags.size(); i++) {
 
@@ -107,59 +101,198 @@ public class Score {
                         sentValue++;
                     }
                     else {
-                        errors.adjustOrPutValue(goldSentence[j][column] + "\t" + modelSentence[j][column], 1, 1);
+                        scoreResults.incErrors(goldSentence[j][column] + "\t" + modelSentence[j][column], 1, 1);
                     }
 
                     if (knownWords.contains(goldSentence[j][0])) {
-                        knownCorrect += value;
-                        knownTotal++;
+                        scoreResults.incKnownCorrect(value);
+                        scoreResults.incKnownTotal(1);
                     }
                     else {
-                        unseenCorrect += value;
-                        unseenTotal++;
+                        scoreResults.incUnseenCorrect(value);
+                        scoreResults.incUnseenTotal(1);
                     }
 
                     if (ambigWords.contains(goldSentence[j][0])) {
-                        ambigCorrect += value;
-                        ambigTotal++;
+                        scoreResults.incAmbigCorrect(value);
+                        scoreResults.incAmbigTotal(1);
                     }
 
-                    correct += value;
-                    total++;
+                    scoreResults.incCorrect(value);
+                    scoreResults.incTotal(1);
                 }
 
             }
 
             if (sentValue == goldSentence.length)
-                sentenceCorrect++;
-            sentenceTotal++;
+                scoreResults.incSentenceCorrect(1);
+            scoreResults.incSentenceTotal(1);
         }
-
-        System.out.println("\nPerformance:\n-----------------------");
-        // System.out.println("\nK: "+getAccuracy(knownCorrect,knownTotal)
-        // + "\tU: " + getAccuracy(unseenCorrect,unseenTotal)
-        // + "\tT: " + getAccuracy(correct,total)
-        // + "\tS: " + getAccuracy(sentenceCorrect,sentenceTotal));
-
-        System.out.println("Total:     " + getAccuracy(correct, total) + "\nSentence:  "
-                + getAccuracy(sentenceCorrect, sentenceTotal) + "\n-----------------------" + "\nKnowns:    "
-                + getAccuracy(knownCorrect, knownTotal) + "\nUnknowns:  " + getAccuracy(unseenCorrect, unseenTotal)
-                + "\nAmbiguous: " + getAccuracy(ambigCorrect, ambigTotal));
-
-        IntStringPair[] sortedErrors = new IntStringPair[errors.size()];
-        int index = 0;
-        for (TObjectIntIterator<String> it = errors.iterator(); it.hasNext();) {
-            it.advance();
-            sortedErrors[index++] = new IntStringPair(it.value(), it.key());
-        }
-        Arrays.sort(sortedErrors);
-        System.out.println("\nMost common errors:");
-        System.out.println("#Err\tGold\tModel\n-----------------------");
-        for (int i = 0; i < 5 && i < sortedErrors.length; i++)
-            System.out.println(sortedErrors[i].intValue + "\t" + sortedErrors[i].stringValue);
 
         // scoreLexicon(modelFile, goldFile, trainFile, format, column);
 
+        return scoreResults;
+    }
+
+    public static class ScoreResults {
+        private int total = 0;
+        private int correct = 0;
+        private int unseenTotal = 0;
+        private int unseenCorrect = 0;
+        private int knownTotal = 0;
+        private int knownCorrect = 0;
+        private int sentenceTotal = 0;
+        private int sentenceCorrect = 0;
+        private int ambigCorrect = 0;
+        private int ambigTotal = 0;
+        private TObjectIntHashMap<String> errors = new TObjectIntHashMap<String>();
+
+        public void incTotal(int i) {
+            this.total += i;
+        }
+
+        public void incCorrect(int i) {
+            this.correct += i;
+        }
+
+        public void incUnseenTotal(int i) {
+            this.unseenTotal += i;
+        }
+
+        public void incUnseenCorrect(int i) {
+            this.unseenCorrect += i;
+        }
+
+        public void incKnownTotal(int i) {
+            this.knownTotal += i;
+        }
+
+        public void incKnownCorrect(int i) {
+            this.knownCorrect += i;
+        }
+
+        public void incSentenceTotal(int i) {
+            this.sentenceTotal += i;
+        }
+
+        public void incSentenceCorrect(int i) {
+            this.sentenceCorrect += i;
+        }
+
+        public void incAmbigCorrect(int i) {
+            this.ambigCorrect += i;
+        }
+
+        public void incAmbigTotal(int i) {
+            this.ambigTotal += i;
+        }
+
+        public void incErrors(String s, int adjust_amount, int put_amount) {
+            this.errors.adjustOrPutValue(s, adjust_amount, put_amount);
+        }
+
+        public double totalAccuracy() {
+            return getAccuracy(correct, total);
+        }
+
+        public double sentenceAccuracy() {
+            return getAccuracy(sentenceCorrect, sentenceTotal);
+        }
+
+        public double knownAccuracy() {
+            return getAccuracy(knownCorrect, knownTotal);
+        }
+
+        public double unseenAccuracy() {
+            return getAccuracy(unseenCorrect, unseenTotal);
+        }
+
+        public double ambigAccuracy() {
+            return getAccuracy(ambigCorrect, ambigTotal);
+        }
+
+        private double getAccuracy(int correct, int total) {
+            double accuracy = 0.0;
+            if (total > 0)
+                accuracy = correct / (double) total;
+            return accuracy;
+        }
+
+        public int getTotal() {
+            return total;
+        }
+
+        public int getCorrect() {
+            return correct;
+        }
+
+        public int getUnseenTotal() {
+            return unseenTotal;
+        }
+
+        public int getUnseenCorrect() {
+            return unseenCorrect;
+        }
+
+        public int getKnownTotal() {
+            return knownTotal;
+        }
+
+        public int getKnownCorrect() {
+            return knownCorrect;
+        }
+
+        public int getSentenceTotal() {
+            return sentenceTotal;
+        }
+
+        public int getSentenceCorrect() {
+            return sentenceCorrect;
+        }
+
+        public int getAmbigCorrect() {
+            return ambigCorrect;
+        }
+
+        public int getAmbigTotal() {
+            return ambigTotal;
+        }
+
+        public TObjectIntHashMap<String> getErrors() {
+            return errors;
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            sb.append("Performance:\n");
+            sb.append("-----------------------\n");
+            // sb.append("\nK: "+getAccuracy(knownCorrect,knownTotal)
+            // + "\tU: " + getAccuracy(unseenCorrect,unseenTotal)
+            // + "\tT: " + getAccuracy(correct,total)
+            // + "\tS: " + getAccuracy(sentenceCorrect,sentenceTotal));
+
+            sb.append("Total:     " + getAccuracyString(correct, total) + "\n");
+            sb.append("Sentence:  " + getAccuracyString(sentenceCorrect, sentenceTotal) + "\n");
+            sb.append("-----------------------\n");
+            sb.append("Knowns:    " + getAccuracyString(knownCorrect, knownTotal) + "\n");
+            sb.append("Unknowns:  " + getAccuracyString(unseenCorrect, unseenTotal) + "\n");
+            sb.append("Ambiguous: " + getAccuracyString(ambigCorrect, ambigTotal) + "\n");
+
+            IntStringPair[] sortedErrors = new IntStringPair[errors.size()];
+            int index = 0;
+            for (TObjectIntIterator<String> it = errors.iterator(); it.hasNext();) {
+                it.advance();
+                sortedErrors[index++] = new IntStringPair(it.value(), it.key());
+            }
+            Arrays.sort(sortedErrors);
+            sb.append("\nMost common errors:\n");
+            sb.append("#Err\tGold\tModel\n-----------------------\n");
+            for (int i = 0; i < 5 && i < sortedErrors.length; i++)
+                sb.append(sortedErrors[i].intValue + "\t" + sortedErrors[i].stringValue + "\n");
+
+            return sb.toString();
+        }
     }
 
     public static String[][][] scoreIte(String modelFile, String goldFile, String trainFile, String format, int column) {
@@ -243,9 +376,8 @@ public class Score {
         }
 
         System.out.println("doing performance");
-        String[][] Performance = new String[][] { getAccuracyIte(knownCorrect, knownTotal),
-                getAccuracyIte(unseenCorrect, unseenTotal), getAccuracyIte(ambigCorrect, ambigTotal),
-                getAccuracyIte(correct, total), getAccuracyIte(sentenceCorrect, sentenceTotal) };
+        String[][] Performance = new String[][] { getAccuracyIte(knownCorrect, knownTotal), getAccuracyIte(unseenCorrect, unseenTotal),
+                getAccuracyIte(ambigCorrect, ambigTotal), getAccuracyIte(correct, total), getAccuracyIte(sentenceCorrect, sentenceTotal) };
 
         System.out.println("doing errors");
         IntStringPair[] sortedErrors = new IntStringPair[errors.size()];
@@ -266,8 +398,7 @@ public class Score {
 
     }
 
-    public static String[][] scoreLexiconIte(String modelFile, String goldFile, String trainFile, String format,
-            int column) {
+    public static String[][] scoreLexiconIte(String modelFile, String goldFile, String trainFile, String format, int column) {
 
         THashSet<String> modelLexicon = getLexicon(modelFile, format, column);
         THashSet<String> goldLexicon = getLexicon(goldFile, format, column);
@@ -283,8 +414,7 @@ public class Score {
                 truePositives++;
         }
 
-        return new String[][] { getAccuracyIte(truePositives, modelLexicon.size()),
-                getAccuracyIte(truePositives, goldLexicon.size()) };
+        return new String[][] { getAccuracyIte(truePositives, modelLexicon.size()), getAccuracyIte(truePositives, goldLexicon.size()) };
     }
 
     public static void scoreLexicon(String modelFile, String goldFile, String trainFile, String format, int column) {
@@ -304,12 +434,12 @@ public class Score {
         }
 
         System.out.println("\nLexicon performance:\n----------------------");
-        System.out.println("P: " + getAccuracy(truePositives, modelLexicon.size()));
-        System.out.println("R: " + getAccuracy(truePositives, goldLexicon.size()));
+        System.out.println("P: " + getAccuracyString(truePositives, modelLexicon.size()));
+        System.out.println("R: " + getAccuracyString(truePositives, goldLexicon.size()));
 
     }
 
-    public static String getAccuracy(int correct, int total) {
+    public static String getAccuracyString(int correct, int total) {
         double accuracy = 0.0;
         if (total > 0)
             accuracy = correct / (double) total;
@@ -457,8 +587,7 @@ public class Score {
         options.addOption("t", "train", true, "the training file (for determining knowns)");
         options.addOption("g", "gold", true, "the gold file");
         options.addOption("f", "format", true, "the format to use (Tab, Pipe) [default: Tab]");
-        options.addOption("c", "column", true,
-                "the tag column to score (default: 1, which is the first tag after the token)");
+        options.addOption("c", "column", true, "the tag column to score (default: 1, which is the first tag after the token)");
         options.addOption("h", "help", false, "help");
 
         try {

@@ -32,30 +32,31 @@ import texnlp.taggers.Tagger;
  * @author ponvert@mail.utexas.edu (Elias Ponvert)
  */
 public class TaggerOptions {
-    public int numIterations = 0;
-    public int numMachines = 1;
-    public double priorAmount = 0.0;
-    public double logBeta = Math.log(0.001);
-    public double cutoffTD = 0.0;
-    public String modelType = "HMM";
-    public String format = "pipe";
-    public String taggedFile = "";
-    public String rawFile = "";
-    public String devFile = "";
-    public String evalFile = "";
-    public String machineFile = "";
-    public File outputDir = null;
-    public String tagsetFile = "";
-    public boolean tagdictTraining = false;
-    public boolean unconstrainedByTagdict = false;
-    public boolean multitag = false;
-    public boolean dirichletTransition = false;
-    public boolean dirichletEmission = false;
-    public String contextGen = "word";
-    public Double lambda = 0.0;
+    private int numIterations = 0;
+    private int numMachines = 1;
+    private double priorAmount = 0.0;
+    private double logBeta = Math.log(0.001);
+    private double cutoffTD = 0.0;
+    private String modelType = "HMM";
+    private String format = "pipe";
+    private String taggedFile = "";
+    private String rawFile = "";
+    private String devFile = "";
+    private String evalFile = "";
+    private String machineFile = "";
+    private File outputDir = null;
+    private String tagsetFile = "";
+    private boolean tagdictTraining = false;
+    private boolean unconstrainedByTagdict = false;
+    private boolean multitag = false;
+    private boolean dirichletTransition = false;
+    private boolean dirichletEmission = false;
+    private String contextGen = "word";
+    private Double lambda = 0.0;
 
     public TaggerOptions(CommandLine cline) throws IOException {
 
+        boolean outputDirSet = false;
         for (Option option : cline.getOptions()) {
             String value = option.getValue();
             switch (option.getOpt().charAt(0)) {
@@ -66,73 +67,78 @@ public class TaggerOptions {
                 setContextGen(value);
                 break;
             case 'i':
-                numIterations = Integer.parseInt(value);
+                setNumIterations(Integer.parseInt(value));
                 break;
             case 'a':
-                numMachines = Integer.parseInt(value);
+                setNumMachines(Integer.parseInt(value));
                 break;
             case 'p':
-                priorAmount = Double.parseDouble(value);
+                setPriorAmount(Double.parseDouble(value));
                 break;
             case 'b':
-                logBeta = Math.log(Double.parseDouble(value));
+                setBeta(Double.parseDouble(value));
                 break;
             case 'c':
-                cutoffTD = Double.parseDouble(value);
+                setCutoffTD(Double.parseDouble(value));
                 break;
             case 'q':
-                lambda = Double.parseDouble(value);
+                setLambda(Double.parseDouble(value));
                 break;
             case 'm':
-                modelType = value;
+                setModelType(value);
                 break;
             case 't':
-                taggedFile = value;
+                setTaggedFile(value);
                 break;
             case 'r':
-                rawFile = value;
+                setRawFile(value);
                 break;
             case 'd':
-                devFile = value;
+                setDevFile(value);
                 break;
             case 'e':
-                evalFile = value;
+                setEvalFile(value);
                 break;
             case 'l':
-                machineFile = value;
+                setMachineFile(value);
                 break;
             case 'o':
-                outputDir = new File(value);
+                setOutputDir(value);
+                outputDirSet = true;
                 break;
             case 's':
-                tagsetFile = value;
+                setTagsetFile(value);
                 break;
             case 'g':
-                tagdictTraining = true;
+                setTagdictTraining(true);
                 break;
             case 'u':
-                unconstrainedByTagdict = true;
+                setUnconstrainedByTagdict(true);
                 break;
             case 'n':
-                multitag = true;
+                setMultitag(true);
                 break;
             case 'j':
-                dirichletTransition = true;
+                setDirichletTransition(true);
                 break;
             case 'k':
-                dirichletEmission = true;
+                setDirichletEmission(true);
                 break;
             }
         }
 
-        // Create the output directory
+        if (!outputDirSet)
+            createOutputDir();
+    }
+
+    public void createOutputDir() throws IOException {
         if (outputDir == null) {
             outputDir = File.createTempFile("tag", null);
             // This removes the created file so we can recreate it as a
             // directory.
             outputDir.delete();
-            System.out.println("Results will be saved to: " + outputDir
-                    + "\nMake sure to remove such output directories periodically.");
+            // System.out.println("Results will be saved to: " + outputDir +
+            // "\nMake sure to remove such output directories periodically.");
         }
 
         if (!outputDir.mkdirs()) {
@@ -145,14 +151,13 @@ public class TaggerOptions {
     }
 
     public TaggerOptions() {
-
     }
 
-    public void setFiles(String model, String taggedFile, String devFile, File outputDir) {
-        this.modelType = model;
-        this.outputDir = outputDir;
-        this.taggedFile = taggedFile;
-        this.devFile = devFile;
+    public void setFiles(String model, String taggedFile, String devFile, File outputDir) throws IOException {
+        setModelType(model);
+        setOutputDir(outputDir);
+        setTaggedFile(taggedFile);
+        setDevFile(devFile);
     }
 
     public int getNumIterations() {
@@ -227,17 +232,10 @@ public class TaggerOptions {
         return dirichletEmission;
     }
 
-    /**
-     * @param format
-     *            the format to set
-     */
     public void setFormat(String format) {
         this.format = format;
     }
 
-    /**
-     * @return the format
-     */
     public String getFormat() {
         return format;
     }
@@ -253,4 +251,87 @@ public class TaggerOptions {
     public Double getLambda() {
         return lambda;
     }
+
+    public void setNumIterations(int numIterations) {
+        this.numIterations = numIterations;
+    }
+
+    public void setNumMachines(int numMachines) {
+        this.numMachines = numMachines;
+    }
+
+    public void setPriorAmount(double priorAmount) {
+        this.priorAmount = priorAmount;
+    }
+
+    public void setBeta(double beta) {
+        this.logBeta = Math.log(beta);
+    }
+
+    public void setCutoffTD(double cutoffTD) {
+        this.cutoffTD = cutoffTD;
+    }
+
+    public void setModelType(String modelType) {
+        this.modelType = modelType;
+    }
+
+    public void setTaggedFile(String taggedFile) {
+        this.taggedFile = taggedFile;
+    }
+
+    public void setRawFile(String rawFile) {
+        this.rawFile = rawFile;
+    }
+
+    public void setDevFile(String devFile) {
+        this.devFile = devFile;
+    }
+
+    public void setEvalFile(String evalFile) {
+        this.evalFile = evalFile;
+    }
+
+    public void setMachineFile(String machineFile) {
+        this.machineFile = machineFile;
+    }
+
+    public void setOutputDir(String outputDir) throws IOException {
+        this.outputDir = new File(outputDir);
+        createOutputDir();
+    }
+
+    public void setOutputDir(File outputDir) throws IOException {
+        this.outputDir = outputDir;
+        createOutputDir();
+    }
+
+    public void setTagsetFile(String tagsetFile) {
+        this.tagsetFile = tagsetFile;
+    }
+
+    public void setTagdictTraining(boolean tagdictTraining) {
+        this.tagdictTraining = tagdictTraining;
+    }
+
+    public void setUnconstrainedByTagdict(boolean unconstrainedByTagdict) {
+        this.unconstrainedByTagdict = unconstrainedByTagdict;
+    }
+
+    public void setMultitag(boolean multitag) {
+        this.multitag = multitag;
+    }
+
+    public void setDirichletTransition(boolean dirichletTransition) {
+        this.dirichletTransition = dirichletTransition;
+    }
+
+    public void setDirichletEmission(boolean dirichletEmission) {
+        this.dirichletEmission = dirichletEmission;
+    }
+
+    public void setLambda(Double lambda) {
+        this.lambda = lambda;
+    }
+
 }
