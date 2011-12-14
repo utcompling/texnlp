@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * A Hashset that keeps track of outputs, and handles unknowns.

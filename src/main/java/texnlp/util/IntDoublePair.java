@@ -1,6 +1,6 @@
 package texnlp.util;
 
-import gnu.trove.TLinkableAdapter;
+import gnu.trove.list.TLinkableAdapter;
 
 /**
  * A pair of an int and double
@@ -8,7 +8,7 @@ import gnu.trove.TLinkableAdapter;
  * @author Jason Baldridge
  * @version $Revision: 1.1 $, $Date: 2005/04/14 04:22:57 $
  */
-public final class IntDoublePair extends TLinkableAdapter implements Comparable<IntDoublePair> {
+public final class IntDoublePair extends TLinkableAdapter<IntDoublePair> implements Comparable<IntDoublePair> {
     /**
      * 
      */

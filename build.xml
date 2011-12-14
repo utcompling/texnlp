@@ -30,7 +30,7 @@
     <property name="build.javadocs" value="${docs.dir}/api"/>
   	
     <path id="build.classpath">
-      <pathelement location="${lib.dir}/trove.jar"/>
+      <pathelement location="${lib.dir}/trove4j-3.0.2.jar"/>
       <pathelement location="${lib.dir}/cli.jar"/>
       <pathelement location="${lib.dir}/antlr-3.0.1.jar"/>
       <pathelement location="${lib.dir}/antlr-2.7.7.jar"/>

@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 
 import java.util.Set;
 

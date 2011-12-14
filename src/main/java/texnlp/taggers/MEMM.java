@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

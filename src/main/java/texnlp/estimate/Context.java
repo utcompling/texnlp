@@ -1,7 +1,7 @@
 package texnlp.estimate;
 
-import gnu.trove.THashSet;
-import gnu.trove.TLinkableAdapter;
+import gnu.trove.list.TLinkableAdapter;
+import gnu.trove.set.hash.THashSet;
 
 import java.util.Arrays;
 

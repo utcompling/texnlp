@@ -17,9 +17,9 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.TLinkedList;
-import gnu.trove.TObjectIntHashMap;
-import gnu.trove.TObjectIntIterator;
+import gnu.trove.iterator.TObjectIntIterator;
+import gnu.trove.list.linked.TLinkedList;
+import gnu.trove.map.hash.TObjectIntHashMap;
 
 import java.io.EOFException;
 import java.io.File;

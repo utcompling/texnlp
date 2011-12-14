@@ -1,6 +1,6 @@
 package texnlp.util;
 
-import gnu.trove.TLinkableAdapter;
+import gnu.trove.list.TLinkableAdapter;
 
 /**
  * A pair of an int and String

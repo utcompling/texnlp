@@ -17,12 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.THashMap;
-import gnu.trove.TIntDoubleHashMap;
-import gnu.trove.TIntDoubleIterator;
-import gnu.trove.TIntIntHashMap;
-import gnu.trove.TObjectIntHashMap;
-import gnu.trove.TObjectObjectProcedure;
+import gnu.trove.iterator.TIntDoubleIterator;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TIntDoubleHashMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.procedure.TObjectObjectProcedure;
 
 import java.io.EOFException;
 import java.io.IOException;

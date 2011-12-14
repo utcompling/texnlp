@@ -1,6 +1,6 @@
 package texnlp.estimate;
 
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * Generate contextual predicates for a word.

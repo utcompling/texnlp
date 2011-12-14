@@ -17,8 +17,8 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.THashMap;
-import gnu.trove.TLinkedList;
+import gnu.trove.list.linked.TLinkedList;
+import gnu.trove.map.hash.THashMap;
 import texnlp.util.IntDoublePair;
 
 /**

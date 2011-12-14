@@ -17,12 +17,12 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.taggers;
 
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
-import gnu.trove.TLinkedList;
-import gnu.trove.TObjectDoubleHashMap;
-import gnu.trove.TObjectDoubleIterator;
-import gnu.trove.TObjectIntHashMap;
+import gnu.trove.iterator.TObjectDoubleIterator;
+import gnu.trove.list.linked.TLinkedList;
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.map.hash.TObjectDoubleHashMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.hash.THashSet;
 import texnlp.util.IntDoublePair;
 import texnlp.util.MathUtil;
 
@@ -99,7 +99,7 @@ public class Counts {
         Counts ccopy = new Counts(numTags, tagdictTraining, useDirichletTransition, useDirichletEmission);
 
         // ccopy.c_w = c_w = new TObjectDoubleHashMap<String>();
-        ccopy.c_w = c_w.clone();
+        ccopy.c_w = clone(c_w);
 
         // ccopy.c_t = new double[numTags];
         System.arraycopy(c_t, 0, ccopy.c_t, 0, numTags);
@@ -115,7 +115,7 @@ public class Counts {
         for (int i = 0; i < numTags; i++) {
             System.arraycopy(c_tt[i], 0, ccopy.c_tt[i], 0, numTags);
             ccopy.c_tw[i] = new TObjectDoubleHashMap<String>();
-            ccopy.c_tw[i] = c_tw[i].clone();
+            ccopy.c_tw[i] = clone(c_tw[i]);
         }
 
         ccopy.lambda_tt = lambda_tt;
@@ -129,6 +129,12 @@ public class Counts {
         ccopy.seenWords = seenWords;
 
         return ccopy;
+    }
+
+    private TObjectDoubleHashMap<String> clone(TObjectDoubleHashMap<String> in) {
+        TObjectDoubleHashMap<String> out = new TObjectDoubleHashMap<String>();
+        out.putAll(in);
+        return out;
     }
 
     public final void increment(String w) {
@@ -374,7 +380,7 @@ public class Counts {
     public final EmissionProbs getEmissionLogDist() {
 
         TObjectDoubleHashMap<String> unigramSmoothed = new TObjectDoubleHashMap<String>(c_w.size());
-        final double numWords = MathUtil.sum(c_w.getValues());
+        final double numWords = MathUtil.sum(c_w.values());
         final int numTypes = seenWords.size() + 1;
 
         // System.out.println(numWords + " :: " + numTypes);

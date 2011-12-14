@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 package texnlp.ccg;
 
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 
 /**
  * A small, pre-defined lexicon for testing purposes.
