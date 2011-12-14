@@ -616,7 +616,6 @@ public class HMM extends MarkovModel {
             // Start iterating EM
             double previousLogProb = MathUtil.LOG_ZERO;
             for (int iter = 0; iter < numIterations; iter++) {
-                LOG.info("\t" + iter + ": ");
 
                 // Counts cnew = c.copy();
                 Counts cnew = cEmpty.copy();
@@ -629,7 +628,7 @@ public class HMM extends MarkovModel {
 
                 double averageLogProb = totalProbForK / numSequences;
                 // LOG.debug("\t"+ iter + ": " + averageLogProb);
-                LOG.info(averageLogProb);
+                LOG.info("\t" + iter + ": " + averageLogProb);
 
                 // Reset model parameters based on the maximization
                 cnew.prepare();
