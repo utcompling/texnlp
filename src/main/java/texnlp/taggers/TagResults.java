@@ -77,8 +77,7 @@ public class TagResults {
             }
         }
         catch (IOException e) {
-            System.out.println("Unable to open file to save tagged results:" + name);
-            System.out.println(e);
+            throw new RuntimeException("Unable to open file to save tagged results:" + name, e);
         }
 
         if (savePerplexity) {
@@ -91,8 +90,7 @@ public class TagResults {
 
             }
             catch (IOException e) {
-                System.out.println("Unable to open file to save perplexity:" + name);
-                System.out.println(e);
+                throw new RuntimeException("Unable to open file to save perplexity:" + name, e);
             }
         }
 
@@ -106,8 +104,7 @@ public class TagResults {
 
             }
             catch (IOException e) {
-                System.out.println("Unable to open file to save entropy:" + name);
-                System.out.println(e);
+                throw new RuntimeException("Unable to open file to save entropy:" + name, e);
             }
         }
 
@@ -168,7 +165,7 @@ public class TagResults {
                 perplexity.write('\n');
             }
             catch (IOException e) {
-                System.out.println("Error saving perplexity:" + e);
+                throw new RuntimeException("Error saving perplexity:", e);
             }
         }
     }
@@ -180,7 +177,7 @@ public class TagResults {
                 entropy.write('\n');
             }
             catch (IOException e) {
-                System.out.println("Error saving entropy:" + e);
+                throw new RuntimeException("Error saving entropy:", e);
             }
         }
     }
@@ -191,7 +188,7 @@ public class TagResults {
                 entropy.write('\n');
             }
             catch (IOException e) {
-                System.out.println("Error saving entropy:" + e);
+                throw new RuntimeException("Error saving entropy:", e);
             }
         }
     }

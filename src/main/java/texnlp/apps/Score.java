@@ -37,6 +37,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import texnlp.io.Conll2kReader;
 import texnlp.io.DataReader;
@@ -51,11 +53,12 @@ import texnlp.util.IntStringPair;
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Score {
+    private static Log LOG = LogFactory.getLog(Score.class);
 
     public static void score(String modelFile, String goldFile, String trainFile, String format, int column) {
         ScoreResults scoreResults = getScore(modelFile, goldFile, trainFile, format, column);
-        System.out.println();
-        System.out.println(scoreResults);
+        LOG.info("");
+        LOG.info(scoreResults);
     }
 
     public static ScoreResults getScore(String modelFile, String goldFile, String trainFile, String format, int column) {
@@ -375,11 +378,12 @@ public class Score {
             sentenceTotal++;
         }
 
-        System.out.println("doing performance");
-        String[][] Performance = new String[][] { getAccuracyIte(knownCorrect, knownTotal), getAccuracyIte(unseenCorrect, unseenTotal),
-                getAccuracyIte(ambigCorrect, ambigTotal), getAccuracyIte(correct, total), getAccuracyIte(sentenceCorrect, sentenceTotal) };
+        LOG.info("doing performance");
+        String[][] Performance = new String[][] { getAccuracyIte(knownCorrect, knownTotal),
+                getAccuracyIte(unseenCorrect, unseenTotal), getAccuracyIte(ambigCorrect, ambigTotal),
+                getAccuracyIte(correct, total), getAccuracyIte(sentenceCorrect, sentenceTotal) };
 
-        System.out.println("doing errors");
+        LOG.info("doing errors");
         IntStringPair[] sortedErrors = new IntStringPair[errors.size()];
         int index = 0;
         for (TObjectIntIterator<String> it = errors.iterator(); it.hasNext();) {
@@ -387,7 +391,7 @@ public class Score {
             sortedErrors[index++] = new IntStringPair(it.value(), it.key());
         }
         Arrays.sort(sortedErrors);
-        System.out.println("doing lex");
+        LOG.info("doing lex");
         String[][] Errors = new String[5][];
         for (int i = 0; i < 5 && i < sortedErrors.length; i++)
             Errors[i] = new String[] { "" + sortedErrors[i].intValue, sortedErrors[i].stringValue };
@@ -398,7 +402,8 @@ public class Score {
 
     }
 
-    public static String[][] scoreLexiconIte(String modelFile, String goldFile, String trainFile, String format, int column) {
+    public static String[][] scoreLexiconIte(String modelFile, String goldFile, String trainFile, String format,
+            int column) {
 
         THashSet<String> modelLexicon = getLexicon(modelFile, format, column);
         THashSet<String> goldLexicon = getLexicon(goldFile, format, column);
@@ -414,7 +419,8 @@ public class Score {
                 truePositives++;
         }
 
-        return new String[][] { getAccuracyIte(truePositives, modelLexicon.size()), getAccuracyIte(truePositives, goldLexicon.size()) };
+        return new String[][] { getAccuracyIte(truePositives, modelLexicon.size()),
+                getAccuracyIte(truePositives, goldLexicon.size()) };
     }
 
     public static void scoreLexicon(String modelFile, String goldFile, String trainFile, String format, int column) {
@@ -433,9 +439,9 @@ public class Score {
                 truePositives++;
         }
 
-        System.out.println("\nLexicon performance:\n----------------------");
-        System.out.println("P: " + getAccuracyString(truePositives, modelLexicon.size()));
-        System.out.println("R: " + getAccuracyString(truePositives, goldLexicon.size()));
+        LOG.info("\nLexicon performance:\n----------------------");
+        LOG.info("P: " + getAccuracyString(truePositives, modelLexicon.size()));
+        LOG.info("R: " + getAccuracyString(truePositives, goldLexicon.size()));
 
     }
 
@@ -475,8 +481,7 @@ public class Score {
 
         }
         catch (IOException e) {
-            System.out.println("Error reading file: " + taggedFile);
-            System.out.println(e);
+            throw new RuntimeException("Error reading file: " + taggedFile, e);
         }
         return items;
     }
@@ -504,8 +509,7 @@ public class Score {
 
         }
         catch (IOException e) {
-            System.out.println("Error reading file: " + file);
-            System.out.println(e);
+            throw new RuntimeException("Error reading file: " + file, e);
         }
         return words;
     }
@@ -539,8 +543,7 @@ public class Score {
 
         }
         catch (IOException e) {
-            System.out.println("Error reading file: " + file);
-            System.out.println(e);
+            throw new RuntimeException("Error reading file: " + file, e);
         }
         return lexicon;
     }
@@ -570,13 +573,12 @@ public class Score {
 
         }
         catch (IOException e) {
-            System.out.println("Error reading file: " + file);
-            System.out.println(e);
+            throw new RuntimeException("Error reading file: " + file, e);
         }
         return lexicon;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
 
         CommandLineParser optparse = new PosixParser();
 
@@ -587,49 +589,43 @@ public class Score {
         options.addOption("t", "train", true, "the training file (for determining knowns)");
         options.addOption("g", "gold", true, "the gold file");
         options.addOption("f", "format", true, "the format to use (Tab, Pipe) [default: Tab]");
-        options.addOption("c", "column", true, "the tag column to score (default: 1, which is the first tag after the token)");
+        options.addOption("c", "column", true,
+                "the tag column to score (default: 1, which is the first tag after the token)");
         options.addOption("h", "help", false, "help");
 
-        try {
-            CommandLine cline = optparse.parse(options, args);
+        CommandLine cline = optparse.parse(options, args);
 
-            if (cline.hasOption('h')) {
-                HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp("java texnlp.apps.Score", options);
-                System.exit(0);
-            }
-
-            String modelFile = "";
-            if (cline.hasOption('m'))
-                modelFile = cline.getOptionValue('m');
-
-            String goldFile = "";
-            if (cline.hasOption('g'))
-                goldFile = cline.getOptionValue('g');
-
-            // String rawFile = "";
-            // if (cline.hasOption('r'))
-            // rawFile = cline.getOptionValue('r');
-
-            String trainFile = "";
-            if (cline.hasOption('t'))
-                trainFile = cline.getOptionValue('t');
-
-            String format = "Pipe";
-            if (cline.hasOption('f'))
-                format = cline.getOptionValue('f');
-
-            int column = 1;
-            if (cline.hasOption('c'))
-                column = Integer.parseInt(cline.getOptionValue('c'));
-
-            score(modelFile, goldFile, trainFile, format, column);
-
-        }
-        catch (ParseException exp) {
-            System.out.println("Unexpected exception parsing command line options:" + exp.getMessage());
+        if (cline.hasOption('h')) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("java texnlp.apps.Score", options);
+            System.exit(0);
         }
 
+        String modelFile = "";
+        if (cline.hasOption('m'))
+            modelFile = cline.getOptionValue('m');
+
+        String goldFile = "";
+        if (cline.hasOption('g'))
+            goldFile = cline.getOptionValue('g');
+
+        // String rawFile = "";
+        // if (cline.hasOption('r'))
+        // rawFile = cline.getOptionValue('r');
+
+        String trainFile = "";
+        if (cline.hasOption('t'))
+            trainFile = cline.getOptionValue('t');
+
+        String format = "Pipe";
+        if (cline.hasOption('f'))
+            format = cline.getOptionValue('f');
+
+        int column = 1;
+        if (cline.hasOption('c'))
+            column = Integer.parseInt(cline.getOptionValue('c'));
+
+        score(modelFile, goldFile, trainFile, format, column);
     }
 
 }

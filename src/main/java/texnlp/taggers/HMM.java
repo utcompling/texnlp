@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import texnlp.io.DataReader;
 import texnlp.util.IntDoublePair;
 import texnlp.util.MathUtil;
@@ -41,6 +44,8 @@ import texnlp.util.TaggerOptions;
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class HMM extends MarkovModel {
+    private static Log LOG = LogFactory.getLog(HMM.class);
+
     private int numIterations;
     protected String taggedFile;
     protected String machineFile;
@@ -168,7 +173,7 @@ public class HMM extends MarkovModel {
             else {
                 validTags[tokenID] = jStates;
             }
-            // System.out.println(tokens[tokenID] + ": " +
+            // LOG.debug(tokens[tokenID] + ": " +
             // StringUtil.join(validTags[tokenID]));
 
         }
@@ -195,7 +200,7 @@ public class HMM extends MarkovModel {
                 // MathUtil.elogProduct(viterbi[numTokens-1][stateID],
                 // finalProbs[stateID]);
 
-                // System.out.println(bestTotalProb + "\t" + finalProb);
+                // LOG.debug(bestTotalProb + "\t" + finalProb);
 
                 if (finalProb > bestTotalProb) {
                     bestTotalProb = finalProb;
@@ -217,8 +222,8 @@ public class HMM extends MarkovModel {
         }
 
         // double perplexity = Math.exp(-1*(bestTotalProb/numTokens));
-        // System.out.println("Log prob: " + bestTotalProb);
-        // System.out.println("Perplexity per tagged word: " + perplexity);
+        // LOG.debug("Log prob: " + bestTotalProb);
+        // LOG.debug("Perplexity per tagged word: " + perplexity);
         results.addPerplexity(Math.exp(-1 * (bestTotalProb / numTokens)));
 
         String[] labels = new String[numTokens];
@@ -226,7 +231,7 @@ public class HMM extends MarkovModel {
         for (int i = lastTokenID; i > 0; i--) {
             labels[i] = stateNames[endLabel];
             endLabel = backtraces[i][endLabel];
-            // System.out.println("Log prob: " + i + " " + endLabel + ":" +
+            // LOG.debug("Log prob: " + i + " " + endLabel + ":" +
             // viterbi[i][endLabel]);
         }
 
@@ -234,16 +239,16 @@ public class HMM extends MarkovModel {
             labels[0] = stateNames[endLabel];
         }
         catch (java.lang.ArrayIndexOutOfBoundsException e) {
-            System.err.println("Issue tagging:");
+            StringBuilder sb = new StringBuilder("Issue tagging:\n");
             for (int k = 0; k < tokens.length; k++) {
-                System.err.print(tokens[k]);
-                System.err.print(" ");
+                sb.append(tokens[k]);
+                sb.append(" ");
             }
-            System.err.println();
-            throw e;
+            sb.append("\n");
+            throw new RuntimeException(sb.toString(), e);
         }
 
-        // System.out.println(StringUtil.mergeJoin("/", tokens, labels));
+        // LOG.debug(StringUtil.mergeJoin("/", tokens, labels));
 
         return labels;
     }
@@ -342,7 +347,7 @@ public class HMM extends MarkovModel {
                     }
                 }
 
-                // System.out.println(StringUtil.join(c.c_t));
+                // LOG.debug(StringUtil.join(c.c_t));
 
                 // The next block of code adds pseudo-counts to the
                 // emission counts by looking at each word, and using
@@ -424,7 +429,7 @@ public class HMM extends MarkovModel {
             cTotal.prepare();
 
             // for (int i=0; i<stateNames.length; i++)
-            // System.out.println(i + " :: " + stateNames[i]);
+            // LOG.debug(i + " :: " + stateNames[i]);
 
             pInitial = cTotal.getInitialLogDist(startWithPrior);
             pFinal = cTotal.getFinalLogDist(startWithPrior);
@@ -437,7 +442,7 @@ public class HMM extends MarkovModel {
 
         }
         catch (IOException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
 
     }
@@ -539,7 +544,7 @@ public class HMM extends MarkovModel {
     // runs each sentence (sequence) separately, collating the results
     // over all sequences. See Rabiner tutorial for details.
     public void forwardBackward(Counts c, Counts cEmpty) {
-        System.out.println("\tRunning forward-backward...");
+        LOG.info("\tRunning forward-backward...");
 
         try {
 
@@ -611,7 +616,7 @@ public class HMM extends MarkovModel {
             // Start iterating EM
             double previousLogProb = MathUtil.LOG_ZERO;
             for (int iter = 0; iter < numIterations; iter++) {
-                System.out.print("\t" + iter + ": ");
+                LOG.info("\t" + iter + ": ");
 
                 // Counts cnew = c.copy();
                 Counts cnew = cEmpty.copy();
@@ -623,8 +628,8 @@ public class HMM extends MarkovModel {
                 }
 
                 double averageLogProb = totalProbForK / numSequences;
-                // System.out.println("\t"+ iter + ": " + averageLogProb);
-                System.out.println(averageLogProb);
+                // LOG.debug("\t"+ iter + ": " + averageLogProb);
+                LOG.info(averageLogProb);
 
                 // Reset model parameters based on the maximization
                 cnew.prepare();
@@ -635,10 +640,10 @@ public class HMM extends MarkovModel {
 
                 if (averageLogProb - previousLogProb < tolerance) {
                     if (averageLogProb < previousLogProb) {
-                        System.out.println("DIVERGED: log probability decreased!!");
+                        LOG.info("DIVERGED: log probability decreased!!");
                     }
                     else {
-                        System.out.println("DONE: Change in average log probability is less than " + tolerance);
+                        LOG.info("DONE: Change in average log probability is less than " + tolerance);
                     }
                     break;
                 }
@@ -675,7 +680,7 @@ public class HMM extends MarkovModel {
             }
         }
         catch (IOException e) {
-            System.out.println(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -792,16 +797,16 @@ public class HMM extends MarkovModel {
         // Check that forward and backward probs are within a small tolerance.
         // /////////////////////////////////////////////////////////////////////////////
         if (Math.abs(logForwardProb - logBackwardProb) > .0001) {
-            System.out.println("WARNING: forward and backward probs different!");
-            System.out.println("\tForward: " + logForwardProb);
-            System.out.println("\tBackward: " + logBackwardProb);
+            LOG.info("WARNING: forward and backward probs different!");
+            LOG.info("\tForward: " + logForwardProb);
+            LOG.info("\tBackward: " + logBackwardProb);
         }
 
-        // System.out.println(StringUtil.join(tokens));
-        // System.out.println("\tForward: " + logForwardProb);
+        // LOG.debug(StringUtil.join(tokens));
+        // LOG.debug("\tForward: " + logForwardProb);
 
         // double perplexity = Math.exp(-1*(logForwardProb/(numTokens)));
-        // System.out.println("\tPerplexity per word: " + perplexity);
+        // LOG.debug("\tPerplexity per word: " + perplexity);
 
         return logForwardProb;
     }

@@ -82,7 +82,7 @@ public abstract class Tagger {
 
             }
             catch (IOException e) {
-                System.out.println("Could not open tagset file: " + tagsetFile);
+                throw new RuntimeException("Could not open tagset file: " + tagsetFile, e);
             }
         }
     }
@@ -109,8 +109,7 @@ public abstract class Tagger {
             tagDictionary = new TagDictionary(getDataReader(new File(dictfile)), states);
         }
         catch (IOException e) {
-            System.out.println("Unable to load tag dictionary from: " + dictfile);
-            System.exit(0);
+            throw new RuntimeException("Unable to load tag dictionary from: " + dictfile, e);
         }
 
     }
@@ -124,6 +123,7 @@ public abstract class Tagger {
 
         else if (dataIOType.equals("tab"))
             return new Conll2kReader(f);
+        
         else
             throw new RuntimeException("Unexpected data format: " + dataIOType);
     }
@@ -135,7 +135,7 @@ public abstract class Tagger {
             try {
                 while (true) {
                     String[] toks = inputReader.nextOutputSequence();
-                    // System.out.println(StringUtil.join(toks));
+                    // LOG.debug(StringUtil.join(toks));
                     String[] tags = tagSentence(toks, results);
                     results.addTags(toks, tags);
 
@@ -146,7 +146,7 @@ public abstract class Tagger {
             }
         }
         catch (IOException e) {
-            System.out.println("Error reading file for tagging:\n" + e);
+            throw new RuntimeException("Error reading file for tagging:", e);
         }
     }
 
@@ -171,7 +171,7 @@ public abstract class Tagger {
             }
         }
         catch (IOException e) {
-            System.out.println("Error reading file for tagging:\n" + e);
+            throw new RuntimeException("Error reading file for tagging:", e);
         }
         return sentences;
     }
@@ -216,7 +216,7 @@ public abstract class Tagger {
 
                                 int stateID = states.get(tag);
                                 tagDictionary.addTagForWord(token[0], stateID);
-                                // System.out.print(token[0]+"::"+stateID+" ");
+                                // LOG.debug(token[0]+"::"+stateID+" ");
                             }
                         }
                         if (wasTagged) {

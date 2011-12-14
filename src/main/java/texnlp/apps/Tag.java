@@ -26,6 +26,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import texnlp.estimate.SimpleWordContextGenerator;
 import texnlp.taggers.HMM;
@@ -43,6 +45,7 @@ import texnlp.util.TaggerOptions;
  * @version $Revision: 1.53 $, $Date: 2006/10/12 21:20:44 $
  */
 public class Tag {
+    private static Log LOG = LogFactory.getLog(Tag.class);
 
     public static void testTagger(TaggerOptions taggerOptions) {
         Tagger tagger;
@@ -62,7 +65,7 @@ public class Tag {
             tagger = new HMM(taggerOptions);
         }
 
-        System.out.println("Training...");
+        LOG.info("Training...");
 
         tagger.train();
 
@@ -71,7 +74,7 @@ public class Tag {
 
         try {
             if (!devFile.equals("")) {
-                System.out.println("Tagging devel file...");
+                LOG.info("Tagging devel file...");
                 TagResults results = new TagResults("dev", new File(devFile), outputDir, true, true,
                         taggerOptions.getFormat());
                 tagger.tagFile(results);
@@ -79,8 +82,7 @@ public class Tag {
             }
         }
         catch (IOException e) {
-            System.out.println("Exception tagging dev file.");
-            System.out.println(e);
+            throw new RuntimeException("Exception tagging dev file.", e);
         }
 
         try {
@@ -88,7 +90,7 @@ public class Tag {
             String trainingFile = taggerOptions.getTaggedFile();
 
             if (!evalFile.equals("")) {
-                System.out.println("Tagging eval file...");
+                LOG.info("Tagging eval file...");
                 TagResults results = new TagResults("eval", new File(evalFile), outputDir, false, false,
                         taggerOptions.getFormat());
                 tagger.tagFile(results);
@@ -98,12 +100,11 @@ public class Tag {
             }
         }
         catch (IOException e) {
-            System.out.println("Exception tagging eval file.");
-            System.out.println(e);
+            throw new RuntimeException("Exception tagging eval file.", e);
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException, IOException {
 
         CommandLineParser optparse = new PosixParser();
 
@@ -135,29 +136,19 @@ public class Tag {
         options.addOption("q", "lambda", true, "scaler for soft counts in HMM EM and cotraining");
         options.addOption("h", "help", false, "print help");
 
-        try {
-            CommandLine cline = optparse.parse(options, args);
+        CommandLine cline = optparse.parse(options, args);
 
-            if (cline.hasOption('h')) {
-                HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp("java Tag", options);
-                System.exit(0);
-            }
-
-            TaggerOptions taggerOptions = new TaggerOptions(cline);
-            testTagger(taggerOptions);
-
-            if (taggerOptions.getNumMachines() > 1) {
-                IOUtil.runCommand("mpdallexit");
-            }
-
-        }
-        catch (ParseException exp) {
-            System.out.println("Unexpected exception parsing command line options:" + exp.getMessage());
-        }
-        catch (IOException exp) {
-            System.out.println("IOException:" + exp.getMessage());
+        if (cline.hasOption('h')) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("java Tag", options);
             System.exit(0);
+        }
+
+        TaggerOptions taggerOptions = new TaggerOptions(cline);
+        testTagger(taggerOptions);
+
+        if (taggerOptions.getNumMachines() > 1) {
+            IOUtil.runCommand("mpdallexit");
         }
 
     }

@@ -31,9 +31,8 @@ public class IOUtil {
             bw.close();
         }
         catch (IOException ioe) {
-            System.out.println("Input error writing to " + outfile.getName());
+            throw new RuntimeException("Input error writing to " + outfile.getName(), ioe);
         }
-        return;
     }
 
     /**
@@ -88,7 +87,7 @@ public class IOUtil {
             proc.getErrorStream().close();
         }
         catch (IOException e) {
-            System.out.println("Unable to run command: " + cmd);
+            throw new RuntimeException("Unable to run command: " + cmd, e);
         }
     }
 

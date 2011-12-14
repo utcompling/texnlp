@@ -36,6 +36,7 @@
       <pathelement location="${lib.dir}/antlr-2.7.7.jar"/>
       <pathelement location="${lib.dir}/antlr-runtime-3.0.1.jar"/>
       <pathelement location="${lib.dir}/stringtemplate-3.1b1.jar"/>
+      <pathelement location="${lib.dir}/commons-logging-1.1.1.jar"/>
     </path>
 
     <filter token="year" value="${year}"/>

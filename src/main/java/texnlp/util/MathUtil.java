@@ -148,7 +148,7 @@ public class MathUtil {
     }
 
     public static final String printProbabilities(double[] vals) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append('[');
         sb.append(Constants.PERCENT_FORMAT.format(vals[0]));
         for (int i = 1; i < vals.length; i++)
