@@ -60,20 +60,8 @@ public class TaggerOptions {
         for (Option option : cline.getOptions()) {
             String value = option.getValue();
             switch (option.getOpt().charAt(0)) {
-            case 'f':
-                setFormat(value);
-                break;
-            case 'w':
-                setContextGen(value);
-                break;
-            case 'i':
-                setNumIterations(Integer.parseInt(value));
-                break;
             case 'a':
                 setNumMachines(Integer.parseInt(value));
-                break;
-            case 'p':
-                setPriorAmount(Double.parseDouble(value));
                 break;
             case 'b':
                 setBeta(Double.parseDouble(value));
@@ -81,48 +69,60 @@ public class TaggerOptions {
             case 'c':
                 setCutoffTD(Double.parseDouble(value));
                 break;
-            case 'q':
-                setLambda(Double.parseDouble(value));
-                break;
-            case 'm':
-                setModelType(value);
-                break;
-            case 't':
-                setTaggedFile(value);
-                break;
-            case 'r':
-                setRawFile(value);
-                break;
             case 'd':
                 setDevFile(value);
                 break;
             case 'e':
                 setEvalFile(value);
                 break;
-            case 'l':
-                setMachineFile(value);
-                break;
-            case 'o':
-                setOutputDir(value);
-                outputDirSet = true;
-                break;
-            case 's':
-                setTagsetFile(value);
+            case 'f':
+                setFormat(value);
                 break;
             case 'g':
                 setTagdictTraining(true);
                 break;
-            case 'u':
-                setUnconstrainedByTagdict(true);
-                break;
-            case 'n':
-                setMultitag(true);
+            case 'i':
+                setNumIterations(Integer.parseInt(value));
                 break;
             case 'j':
                 setDirichletTransition(true);
                 break;
             case 'k':
                 setDirichletEmission(true);
+                break;
+            case 'l':
+                setMachineFile(value);
+                break;
+            case 'm':
+                setModelType(value);
+                break;
+            case 'n':
+                setMultitag(true);
+                break;
+            case 'o':
+                setOutputDir(value);
+                outputDirSet = true;
+                break;
+            case 'p':
+                setPriorAmount(Double.parseDouble(value));
+                break;
+            case 'q':
+                setLambda(Double.parseDouble(value));
+                break;
+            case 'r':
+                setRawFile(value);
+                break;
+            case 's':
+                setTagsetFile(value);
+                break;
+            case 't':
+                setTaggedFile(value);
+                break;
+            case 'u':
+                setUnconstrainedByTagdict(true);
+                break;
+            case 'w':
+                setContextGen(value);
                 break;
             }
         }
