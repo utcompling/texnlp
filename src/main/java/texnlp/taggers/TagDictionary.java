@@ -23,6 +23,8 @@ import gnu.trove.map.hash.TIntDoubleHashMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
 import gnu.trove.procedure.TObjectObjectProcedure;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -128,6 +130,17 @@ public class TagDictionary {
 
     public void setThreshold(double cutoff) {
         threshold = cutoff;
+    }
+
+    public TIntSet getTagsWithMinWordCount(int minWordCount, int totalNumStates) {
+        int[] numWordsForTag = getNumWordsForTags(totalNumStates);
+        TIntSet tagsMeetingMinCount = new TIntHashSet();
+        for (int stateId = 0; stateId < totalNumStates; stateId++)
+            if (numWordsForTag[stateId] >= minWordCount)
+                tagsMeetingMinCount.add(stateId);
+        LOG.info("Cut possible states for unknown words from " + totalNumStates + " to " + tagsMeetingMinCount.size()
+                + " using minCount=" + minWordCount);
+        return tagsMeetingMinCount;
     }
 
     public int[] getNumWordsForTags(int numStates) {

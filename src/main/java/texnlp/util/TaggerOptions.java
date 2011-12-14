@@ -53,6 +53,7 @@ public class TaggerOptions {
     private boolean dirichletEmission = false;
     private String contextGen = "word";
     private Double lambda = 0.0;
+    private int validTagsForUnknownsMinCount = 1;
 
     public TaggerOptions(CommandLine cline) throws IOException {
 
@@ -120,6 +121,9 @@ public class TaggerOptions {
                 break;
             case 'u':
                 setUnconstrainedByTagdict(true);
+                break;
+            case 'v':
+                setValidTagsForUnknownsMinCount(Integer.parseInt(value));
                 break;
             case 'w':
                 setContextGen(value);
@@ -252,6 +256,10 @@ public class TaggerOptions {
         return lambda;
     }
 
+    public int getValidTagsForUnknownsMinCount() {
+        return validTagsForUnknownsMinCount;
+    }
+
     public void setNumIterations(int numIterations) {
         this.numIterations = numIterations;
     }
@@ -332,6 +340,10 @@ public class TaggerOptions {
 
     public void setLambda(Double lambda) {
         this.lambda = lambda;
+    }
+
+    public void setValidTagsForUnknownsMinCount(int validTagsForUnknownsMinCount) {
+        this.validTagsForUnknownsMinCount = validTagsForUnknownsMinCount;
     }
 
 }

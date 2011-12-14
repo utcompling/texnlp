@@ -22,6 +22,7 @@ import gnu.trove.list.linked.TLinkedList;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.map.hash.TObjectDoubleHashMap;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.THashSet;
 import texnlp.util.IntDoublePair;
 import texnlp.util.MathUtil;
@@ -378,7 +379,10 @@ public class Counts {
     }
 
     public final EmissionProbs getEmissionLogDist() {
+        return getEmissionLogDist(null);
+    }
 
+    public final EmissionProbs getEmissionLogDist(TIntSet validTagsForUnknowns) {
         TObjectDoubleHashMap<String> unigramSmoothed = new TObjectDoubleHashMap<String>(c_w.size());
         final double numWords = MathUtil.sum(c_w.values());
         final int numTypes = seenWords.size() + 1;
@@ -408,19 +412,20 @@ public class Counts {
             // final double localDA = dirichletAlpha;
             final double localDA = lambda_tw[i];
 
-            final int numEmissions = c_tw[i].size();
-            double unknownProb;
-            if (useDirichletEmission)
-                unknownProb = MathUtil.elog(vbF(localDA) / vbF(emissionTotals[i] + localDA * numTypes));
-            else
-                unknownProb = MathUtil
-                        .elog((lambda_tw[i] / (numWords + numTypes)) / (emissionTotals[i] + lambda_tw[i]));
+            if (validTagsForUnknowns == null || validTagsForUnknowns.contains(i)) {
+                double unknownProb;
+                if (useDirichletEmission)
+                    unknownProb = MathUtil.elog(vbF(localDA) / vbF(emissionTotals[i] + localDA * numTypes));
+                else
+                    unknownProb = MathUtil.elog((lambda_tw[i] / (numWords + numTypes))
+                            / (emissionTotals[i] + lambda_tw[i]));
 
-            // System.out.println(i + " => " + MathUtil.eexp(unknownProb) +
-            // " :: " + numEmissions + " :: " + emissionTotals[i] + "\t:: " +
-            // lambda_tw[i]);
+                // System.out.println(i + " => " + MathUtil.eexp(unknownProb) +
+                // " :: " + numEmissions + " :: " + emissionTotals[i] + "\t:: "
+                // + lambda_tw[i]);
 
-            unknownEmission.add(new IntDoublePair(i, unknownProb));
+                unknownEmission.add(new IntDoublePair(i, unknownProb));
+            }
 
             for (TObjectDoubleIterator<String> iter = c_tw[i].iterator(); iter.hasNext();) {
                 iter.advance();

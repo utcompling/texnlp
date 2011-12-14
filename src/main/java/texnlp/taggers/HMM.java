@@ -20,6 +20,7 @@ package texnlp.taggers;
 import gnu.trove.iterator.TObjectIntIterator;
 import gnu.trove.list.linked.TLinkedList;
 import gnu.trove.map.hash.TObjectIntHashMap;
+import gnu.trove.set.TIntSet;
 
 import java.io.EOFException;
 import java.io.File;
@@ -71,6 +72,11 @@ public class HMM extends MarkovModel {
     // going.
     private final double tolerance = .0001;
 
+    // The tags that are allowed for unknown words and the minimum count of
+    // distinct words for the tag for it to be included.
+    private TIntSet validTagsForUnknowns;
+    private int validTagsForUnknownsMinCount;
+
     public HMM(TaggerOptions taggerOptions) {
         super(taggerOptions);
         numIterations = taggerOptions.getNumIterations();
@@ -84,6 +90,7 @@ public class HMM extends MarkovModel {
         dirichletEmission = taggerOptions.isDirichletEmission();
         tagDictionary.setThreshold(taggerOptions.getCutoffTD());
         lambda = taggerOptions.getLambda();
+        validTagsForUnknownsMinCount = taggerOptions.getValidTagsForUnknownsMinCount();
     }
 
     // Run the viterbi algorithm to find the most probable tag sequence.
@@ -120,7 +127,7 @@ public class HMM extends MarkovModel {
             viterbi[0][stateID] = MathUtil.elogProduct(pInitial[stateID], currentFirst.doubleValue);
             if (viterbi[0][stateID] > maxFirst)
                 maxFirst = viterbi[0][stateID];
-            currentFirst = (IntDoublePair) currentFirst.getNext();
+            currentFirst = currentFirst.getNext();
         }
 
         if (validTags[0].length > 1)
@@ -164,7 +171,7 @@ public class HMM extends MarkovModel {
                 if (max > maxViterbi)
                     maxViterbi = max;
 
-                current = (IntDoublePair) current.getNext();
+                current = current.getNext();
             }
 
             if (jStates.length > 1) {
@@ -273,7 +280,7 @@ public class HMM extends MarkovModel {
             // MathUtil.elogProduct(pTransition[iStates[i]][stateID],
             // current.doubleValue);
 
-            current = (IntDoublePair) current.getNext();
+            current = current.getNext();
         }
 
         return probs;
@@ -288,7 +295,7 @@ public class HMM extends MarkovModel {
         for (int i = validStates.size(); i > 0; i--) {
             int stateID = current.intValue;
             probs[stateID] = MathUtil.elogProduct(pInitial[stateID], current.doubleValue);
-            current = (IntDoublePair) current.getNext();
+            current = current.getNext();
         }
 
         return probs;
@@ -325,6 +332,9 @@ public class HMM extends MarkovModel {
                 // Moore 2004.
 
                 tagDictionary.applyThreshold();
+
+                if(validTagsForUnknownsMinCount > 1)
+                    validTagsForUnknowns = tagDictionary.getTagsWithMinWordCount(validTagsForUnknownsMinCount, numStates);
 
                 tagDictionary.finalize(numStates);
 
@@ -434,7 +444,7 @@ public class HMM extends MarkovModel {
             pInitial = cTotal.getInitialLogDist(startWithPrior);
             pFinal = cTotal.getFinalLogDist(startWithPrior);
             pTransition = cTotal.getTransitionLogDist(startWithPrior);
-            pEmission = cTotal.getEmissionLogDist();
+            pEmission = cTotal.getEmissionLogDist(validTagsForUnknowns);
 
             if (numIterations > 0) {
                 forwardBackward(cOrig, cEmpty);
@@ -574,13 +584,14 @@ public class HMM extends MarkovModel {
             // fair amount of memory.
 
             // First get values for unknown words
-            int[] unknownTags = new int[numStates];
-            double[] unknownProbs = new double[numStates];
-            IntDoublePair unknownInfo = pEmission.getUnknown().getFirst();
-            for (int counter = 0; counter < numStates; counter++) {
+            TLinkedList<IntDoublePair> pEmissionUnknown = pEmission.getUnknown();
+            int[] unknownTags = new int[pEmissionUnknown.size()];
+            double[] unknownProbs = new double[pEmissionUnknown.size()];
+            IntDoublePair unknownInfo = pEmissionUnknown.getFirst();
+            for (int counter = 0; unknownInfo != null; counter++) {
                 unknownTags[counter] = unknownInfo.intValue;
                 unknownProbs[counter] = unknownInfo.doubleValue;
-                unknownInfo = (IntDoublePair) unknownInfo.getNext();
+                unknownInfo = unknownInfo.getNext();
             }
 
             // Now get values for all the rest, leaving empty lists
@@ -603,7 +614,7 @@ public class HMM extends MarkovModel {
                         for (int counter = 0; counter < numTags; counter++) {
                             possibleTags[itemID][tokenID][counter] = info.intValue;
                             probWordGivenTag[itemID][tokenID][counter] = info.doubleValue;
-                            info = (IntDoublePair) info.getNext();
+                            info = info.getNext();
                         }
                     }
                     else {
@@ -635,7 +646,7 @@ public class HMM extends MarkovModel {
                 pInitial = cnew.getInitialLogDist();
                 pFinal = cnew.getFinalLogDist();
                 pTransition = cnew.getTransitionLogDist();
-                pEmission = cnew.getEmissionLogDist();
+                pEmission = cnew.getEmissionLogDist(validTagsForUnknowns);
 
                 if (averageLogProb - previousLogProb < tolerance) {
                     if (averageLogProb < previousLogProb) {
@@ -649,11 +660,12 @@ public class HMM extends MarkovModel {
                 previousLogProb = averageLogProb;
 
                 // First get values for unknown words
-                unknownProbs = new double[numStates];
-                unknownInfo = pEmission.getUnknown().getFirst();
-                for (int counter = 0; counter < numStates; counter++) {
+                pEmissionUnknown = pEmission.getUnknown();
+                unknownProbs = new double[pEmissionUnknown.size()];
+                unknownInfo = pEmissionUnknown.getFirst();
+                for (int counter = 0; unknownInfo != null; counter++) {
                     unknownProbs[counter] = unknownInfo.doubleValue;
-                    unknownInfo = (IntDoublePair) unknownInfo.getNext();
+                    unknownInfo = unknownInfo.getNext();
                 }
 
                 for (int itemID = 0; itemID < numSequences; itemID++) {
@@ -667,7 +679,7 @@ public class HMM extends MarkovModel {
                             IntDoublePair info = valid.getFirst();
                             for (int counter = 0; counter < numTags; counter++) {
                                 probWordGivenTag[itemID][tokenID][counter] = info.doubleValue;
-                                info = (IntDoublePair) info.getNext();
+                                info = info.getNext();
                             }
                         }
                         else {
