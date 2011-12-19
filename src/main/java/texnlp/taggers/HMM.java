@@ -70,7 +70,7 @@ public class HMM extends MarkovModel {
 
     // The minimum change in log probability between iterations for EM to keep
     // going.
-    private final double tolerance = .0001;
+    protected double tolerance;
 
     // The tags that are allowed for unknown words and the minimum count of
     // distinct words for the tag for it to be included.
@@ -90,6 +90,7 @@ public class HMM extends MarkovModel {
         dirichletEmission = taggerOptions.isDirichletEmission();
         tagDictionary.setThreshold(taggerOptions.getCutoffTD());
         lambda = taggerOptions.getLambda();
+        tolerance = taggerOptions.getTolerance();
         validTagsForUnknownsMinCount = taggerOptions.getValidTagsForUnknownsMinCount();
     }
 

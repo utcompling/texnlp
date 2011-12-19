@@ -53,6 +53,7 @@ public class TaggerOptions {
     private boolean dirichletEmission = false;
     private String contextGen = "word";
     private Double lambda = 0.0;
+    private double tolerance = .0001;
     private int validTagsForUnknownsMinCount = 1;
 
     public TaggerOptions(CommandLine cline) throws IOException {
@@ -128,6 +129,9 @@ public class TaggerOptions {
             case 'w':
                 setContextGen(value);
                 break;
+            case 'z':
+            	setTolerance(Double.parseDouble(value));
+            	break;
             }
         }
 
@@ -135,7 +139,7 @@ public class TaggerOptions {
             createOutputDir();
     }
 
-    public void createOutputDir() throws IOException {
+	public void createOutputDir() throws IOException {
         if (outputDir == null) {
             outputDir = File.createTempFile("tag", null);
             // This removes the created file so we can recreate it as a
@@ -256,6 +260,10 @@ public class TaggerOptions {
         return lambda;
     }
 
+    public double getTolerance() {
+		return tolerance;
+	}
+
     public int getValidTagsForUnknownsMinCount() {
         return validTagsForUnknownsMinCount;
     }
@@ -341,6 +349,10 @@ public class TaggerOptions {
     public void setLambda(Double lambda) {
         this.lambda = lambda;
     }
+
+	public void setTolerance(double tolerance) {
+		this.tolerance = tolerance;
+	}
 
     public void setValidTagsForUnknownsMinCount(int validTagsForUnknownsMinCount) {
         this.validTagsForUnknownsMinCount = validTagsForUnknownsMinCount;
