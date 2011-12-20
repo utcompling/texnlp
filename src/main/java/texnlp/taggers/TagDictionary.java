@@ -132,14 +132,52 @@ public class TagDictionary {
         threshold = cutoff;
     }
 
-    public TIntSet getTagsWithMinWordCount(int minWordCount, int totalNumStates) {
+    public TIntSet getRestrictedTagSet(int minWordCount, int maxTags, int totalNumStates) {
+        //
+        // Get the number of words for each tag (state)
+        //
         int[] numWordsForTag = getNumWordsForTags(totalNumStates);
+
+        //
+        // Order 'numWordsForTag' high-to-low and keep original indices as
+        // 'tagOrdering'
+        //
+        int[] tagOrdering = new int[totalNumStates];
+        for (int i = 0; i < totalNumStates; i++)
+            tagOrdering[i] = i;
+
+        for (int i = 0; i < maxTags && i < totalNumStates; i++) {
+            int maxSoFar = numWordsForTag[i];
+            int maxSoFarIdx = i;
+            for (int j = i + 1; j < totalNumStates; j++) {
+                if (numWordsForTag[j] > maxSoFar) {
+                    maxSoFar = numWordsForTag[j];
+                    maxSoFarIdx = j;
+                }
+            }
+
+            // swap positions in 'numWordsForTag'
+            numWordsForTag[maxSoFarIdx] = numWordsForTag[i];
+            numWordsForTag[i] = maxSoFar;
+
+            // swap positions in 'tagOrdering'
+            int tempIdx = tagOrdering[maxSoFarIdx];
+            tagOrdering[maxSoFarIdx] = tagOrdering[i];
+            tagOrdering[i] = tempIdx;
+        }
+
+        //
+        // Take the top 'maxTags' states that fit the 'minWordCount' criteria
+        //
         TIntSet tagsMeetingMinCount = new TIntHashSet();
-        for (int stateId = 0; stateId < totalNumStates; stateId++)
-            if (numWordsForTag[stateId] >= minWordCount)
-                tagsMeetingMinCount.add(stateId);
+        for (int i = 0; i < maxTags && i < totalNumStates; i++) {
+            if (numWordsForTag[i] >= minWordCount)
+                tagsMeetingMinCount.add(i);
+            else
+                break;
+        }
         LOG.info("Cut possible states for unknown words from " + totalNumStates + " to " + tagsMeetingMinCount.size()
-                + " using minCount=" + minWordCount);
+                + " using minCount=" + minWordCount + " and maxTags=" + maxTags);
         return tagsMeetingMinCount;
     }
 

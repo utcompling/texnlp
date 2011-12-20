@@ -55,6 +55,7 @@ public class TaggerOptions {
     private Double lambda = 0.0;
     private double tolerance = .0001;
     private int validTagsForUnknownsMinCount = 1;
+    private int maxValidTagsForUnknows = Integer.MAX_VALUE;
 
     public TaggerOptions(CommandLine cline) throws IOException {
 
@@ -268,7 +269,11 @@ public class TaggerOptions {
         return validTagsForUnknownsMinCount;
     }
 
-    public void setNumIterations(int numIterations) {
+	public int getMaxValidTagsForUnknows() {
+		return maxValidTagsForUnknows;
+	}
+
+	public void setNumIterations(int numIterations) {
         this.numIterations = numIterations;
     }
 
@@ -357,5 +362,9 @@ public class TaggerOptions {
     public void setValidTagsForUnknownsMinCount(int validTagsForUnknownsMinCount) {
         this.validTagsForUnknownsMinCount = validTagsForUnknownsMinCount;
     }
+
+	public void setMaxValidTagsForUnknows(int maxValidTagsForUnknows) {
+		this.maxValidTagsForUnknows = maxValidTagsForUnknows;
+	}
 
 }
