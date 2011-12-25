@@ -74,9 +74,9 @@ public class HMM extends MarkovModel {
 
     // The tags that are allowed for unknown words and the minimum count of
     // distinct words for the tag for it to be included.
-    private TIntSet validTagsForUnknowns;
-    private int validTagsForUnknownsMinCount;
-    private int maxValidTagsForUnknowns;
+    protected TIntSet validTagsForUnknowns;
+    protected int validTagsForUnknownsMinCount;
+    protected int maxValidTagsForUnknowns;
 
     public HMM(TaggerOptions taggerOptions) {
         super(taggerOptions);
@@ -336,8 +336,9 @@ public class HMM extends MarkovModel {
 
                 tagDictionary.applyThreshold();
 
-                if(validTagsForUnknownsMinCount > 1 || maxValidTagsForUnknowns < numStates)
-                    validTagsForUnknowns = tagDictionary.getRestrictedTagSet(validTagsForUnknownsMinCount, maxValidTagsForUnknowns, numStates);
+                if (validTagsForUnknownsMinCount > 1 || maxValidTagsForUnknowns < numStates)
+                    validTagsForUnknowns = tagDictionary.getRestrictedTagSet(validTagsForUnknownsMinCount,
+                            maxValidTagsForUnknowns, stateNames);
 
                 tagDictionary.finalize(numStates);
 

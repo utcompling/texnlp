@@ -132,7 +132,9 @@ public class TagDictionary {
         threshold = cutoff;
     }
 
-    public TIntSet getRestrictedTagSet(int minWordCount, int maxTags, int totalNumStates) {
+    public TIntSet getRestrictedTagSet(int minWordCount, int maxTags, String[] stateNames) {
+        int totalNumStates = stateNames.length;
+
         //
         // Get the number of words for each tag (state)
         //
@@ -172,12 +174,30 @@ public class TagDictionary {
         TIntSet tagsMeetingMinCount = new TIntHashSet();
         for (int i = 0; i < maxTags && i < totalNumStates; i++) {
             if (numWordsForTag[i] >= minWordCount)
-                tagsMeetingMinCount.add(i);
+                tagsMeetingMinCount.add(tagOrdering[i]);
             else
                 break;
         }
-        LOG.info("Cut possible states for unknown words from " + totalNumStates + " to " + tagsMeetingMinCount.size()
-                + " using minCount=" + minWordCount + " and maxTags=" + maxTags);
+
+        //
+        // Log info
+        //
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Cut possible states for unknown words from " + totalNumStates + " to "
+                    + tagsMeetingMinCount.size() + " using minCount=" + minWordCount + " and maxTags=" + maxTags);
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("  top tags and counts: [");
+            for (int i = 0; i < maxTags && i < totalNumStates && i < 10; i++) {
+                if (numWordsForTag[i] >= minWordCount)
+                    sb.append(stateNames[tagOrdering[i]] + "-" + numWordsForTag[i] + ", ");
+                else
+                    break;
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            sb.append("]");
+            LOG.info(sb);
+        }
         return tagsMeetingMinCount;
     }
 
