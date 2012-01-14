@@ -35,13 +35,13 @@ grammar Category;
 // License along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //////////////////////////////////////////////////////////////////////////////
-package austinnlp.ccg.parse;
+package texnlp.ccg.parse;
 
 import austinnlp.ccg.*;
 }
 
 @lexer::header{
-package austinnlp.ccg.parse;
+package texnlp.ccg.parse;
 }
 
 @members {
@@ -74,7 +74,7 @@ package austinnlp.ccg.parse;
 	System.out.println(c3);
 	System.out.println(c1.equals(c3));
     }
-
+    
 }
 
 parseCat returns [Cat value]
@@ -101,7 +101,7 @@ atom returns [Cat value]
     ;
 
 
-BASESTRING: ( UPPER | LOWER | '.' | ',' | ':' | ';')+ ;
+BASESTRING: ( UPPER | LOWER | '.' | ',' | ':' | ';' | '#' | '$')+ ;
 fragment UPPER: 'A'..'Z';
 fragment LOWER: 'a'..'z';
 SLASH: '\\' | '/' ;

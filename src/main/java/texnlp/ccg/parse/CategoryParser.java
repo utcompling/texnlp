@@ -278,4 +278,8 @@ public class CategoryParser extends Parser {
     public static final BitSet FOLLOW_cat_in_atom155 = new BitSet(new long[] { 0x0000000000000800L });
     public static final BitSet FOLLOW_11_in_atom157 = new BitSet(new long[] { 0x0000000000000002L });
 
+    public void emitErrorMessage(String msg) {
+        throw new RuntimeException(msg);
+    }
+    
 }
